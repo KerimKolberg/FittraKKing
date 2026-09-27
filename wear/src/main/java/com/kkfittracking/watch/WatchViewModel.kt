@@ -60,6 +60,14 @@ class WatchViewModel(application: Application) : AndroidViewModel(application), 
     var intensity by mutableStateOf(0)
         private set
 
+    /** For one-sided exercises: "LEFT" or "RIGHT". */
+    var side by mutableStateOf<String?>(null)
+        private set
+
+    fun chooseSide(value: String) {
+        side = value
+    }
+
     /** The heart rate and activity recording, from the watch's sensors. */
     val health = HealthTracker(application)
 
@@ -167,6 +175,7 @@ class WatchViewModel(application: Application) : AndroidViewModel(application), 
             distance = new.distance ?: 0.0
             height = new.height ?: 0.0
             intensity = new.intensity ?: 0
+            side = new.side
             trackedNote = ""
             cancelHold()
             // A new exercise: a short buzz to look at the watch.
@@ -307,6 +316,7 @@ class WatchViewModel(application: Application) : AndroidViewModel(application), 
             intensity = intensity.takeIf { fields.intensity && it > 0 },
             note = trackedNote.ifEmpty { health.heartRate?.let { "♥ $it bpm" }.orEmpty() },
             isDrop = current.isDrop,
+            side = side.takeIf { fields.perSide },
         )
         if (!fields.weight && command.reps == null && command.seconds == null && command.distance == null) {
             note = "Enter the values first"

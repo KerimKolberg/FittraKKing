@@ -117,6 +117,7 @@ data class SetDto(
     val createdAt: Long,
     val updatedAt: Long,
     val deletedAt: Long? = null,
+    val side: String = "",
 )
 
 @Serializable

@@ -2,6 +2,7 @@ package com.kkfittracking.ui.log
 
 import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.SetValues
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.formatNumber
 import com.kkfittracking.model.parseDecimal
@@ -16,6 +17,8 @@ data class SetInput(
     val height: String = "",
     val rpe: String = "",
     val note: String = "",
+    /** For one-sided exercises: the side of this set. */
+    val side: Side? = null,
 ) {
     sealed interface Result {
         data class Valid(val values: SetValues) : Result
@@ -76,6 +79,7 @@ data class SetInput(
                 durationSeconds = durationSeconds,
                 rpe = effort,
                 note = if (type.usesIntensity) note.trim() else "",
+                side = side,
             ),
         )
     }
@@ -101,6 +105,7 @@ data class SetInput(
             note = values.note,
             minutes = values.durationSeconds?.let { (it / 60).toString() }.orEmpty(),
             seconds = values.durationSeconds?.let { (it % 60).toString() }.orEmpty(),
+            side = values.side,
         )
     }
 }

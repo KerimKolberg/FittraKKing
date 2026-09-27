@@ -43,6 +43,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
@@ -71,6 +74,7 @@ import com.kkfittracking.R
 import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.HistorySession
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.dropStepLabel
 import com.kkfittracking.model.formatDuration
@@ -363,6 +367,9 @@ private fun TrackTab(
                             onEdit = onEditPlan,
                         )
                     }
+                }
+                if (state.exercise?.perSide == true) {
+                    SideChooser(input.side, onChoose = viewModel::chooseSide)
                 }
                 if (type.usesWeight) {
                     StepperField(
@@ -659,6 +666,28 @@ private fun SupersetBar(members: List<DayExercise>, currentId: String, onSelect:
                 )
             }
         }
+    }
+}
+
+/** Left or right: which side this set of a one-arm or one-leg exercise is. Both sides make one set. */
+@Composable
+private fun SideChooser(side: Side?, onChoose: (Side) -> Unit) {
+    Column {
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            Side.entries.forEachIndexed { index, option ->
+                SegmentedButton(
+                    selected = side == option,
+                    onClick = { onChoose(option) },
+                    shape = SegmentedButtonDefaults.itemShape(index, Side.entries.size),
+                ) { Text(option.label) }
+            }
+        }
+        Text(
+            "A left and a right set count as one set.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 

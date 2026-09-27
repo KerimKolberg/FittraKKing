@@ -9,6 +9,7 @@ import com.kkfittracking.data.WorkoutRepository
 import com.kkfittracking.model.NextStep
 import com.kkfittracking.model.SetValues
 import com.kkfittracking.model.Settings
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.guideSuggestion
 import com.kkfittracking.model.nextStep
@@ -108,6 +109,7 @@ class WatchBridge(
                 WatchFields(
                     weight = it.usesWeight, reps = it.usesReps, seconds = it.usesTime, distance = it.usesDistance,
                     height = it.usesHeight, intensity = it.usesIntensity, repsLabel = it.repsLabel,
+                    perSide = exercise.perSide,
                 )
             } ?: WatchFields(),
             track = exercise?.let { trackKind(it.exerciseName, it.exerciseType) },
@@ -116,6 +118,7 @@ class WatchBridge(
             weightStep = fineStep(weightUnits),
             weightBigStep = bigStep(weightUnits),
             upcoming = state.upcoming,
+            side = (target?.side ?: Side.LEFT.takeIf { exercise?.perSide == true })?.name,
             reps = suggestion.reps,
             seconds = suggestion.durationSeconds,
             distance = suggestion.distanceMeters?.takeIf { type?.usesDistance == true }?.let { oneDecimal(units.distanceFromMeters(it)) },
@@ -175,6 +178,7 @@ class WatchBridge(
             rpe = command.intensity?.coerceIn(1, 10),
             note = command.note,
             isDropSet = command.isDrop,
+            side = Side.of(command.side),
         )
         workouts.addSet(date, command.exerciseId, values)
         val day = workouts.observeDay(date).first()

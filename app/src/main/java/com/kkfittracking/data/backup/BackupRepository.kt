@@ -128,12 +128,13 @@ private fun WorkoutExerciseDto.toEntity() = WorkoutExerciseEntity(
 private fun WorkoutSetEntity.toDto() = SetDto(
     id = id, workoutExerciseId = workoutExerciseId, sortOrder = sortOrder, weightKg = weightKg, reps = reps,
     distanceMeters = distanceMeters, durationSeconds = durationSeconds, rpe = rpe, comment = comment,
-    isDropSet = isDropSet, createdAt = createdAt, updatedAt = updatedAt, deletedAt = deletedAt,
+    isDropSet = isDropSet, createdAt = createdAt, updatedAt = updatedAt, deletedAt = deletedAt, side = side,
 )
 private fun SetDto.toEntity() = WorkoutSetEntity(
     id = id, workoutExerciseId = workoutExerciseId, sortOrder = sortOrder, weightKg = weightKg, reps = reps,
     distanceMeters = distanceMeters, durationSeconds = durationSeconds, comment = comment,
     createdAt = createdAt, updatedAt = updatedAt, deletedAt = deletedAt, rpe = rpe, isDropSet = isDropSet,
+    side = side,
 )
 
 private fun RoutineEntity.toDto() = PlanDto(id, name, notes, createdAt, updatedAt, deletedAt)

@@ -24,6 +24,7 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 - **Watch app** (Wear OS): follow the guided workout on the wrist and log sets there, synced with the phone
 - **Daily steps**: the day's steps and distance from Health Connect (what Samsung Health, Google Fit and your watch record), shown on each day
 - **Kilos, pounds or machine levels**: each exercise can have its own weight unit (tap "Unit" under the weight), for machines marked in lb or with just pin numbers
+- **Left and right**: exercises done one side at a time have Left and Right buttons; a left and a right set count as one set, so supersets and the guide wait for both sides
 - **Hold timer**: time an isometric hold on the phone or the watch; it buzzes until you tap Done and keeps counting (−0:10), and the time held goes into the set
 - **Your library order**: Settings → Exercise library puts the body sections and training styles in the order you like
 - **Guided workout**: press Start on a day with a plan and the app takes you from exercise to exercise (round by round in supersets), moving on after each set you save. Pause for longer breaks, skip, or stop early and move what's left to the next day or any day you pick; a notification shows what's next with the phone locked

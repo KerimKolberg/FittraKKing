@@ -15,6 +15,7 @@ import com.kkfittracking.model.MAX_SUPERSET_SIZE
 import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.SetEntry
 import com.kkfittracking.model.SetValues
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.groupSupersets
 import com.kkfittracking.model.historiesOf
@@ -68,6 +69,7 @@ class WorkoutRepository(
                 comment = values.note,
                 rpe = values.rpe,
                 isDropSet = values.isDropSet,
+                side = values.side?.name.orEmpty(),
                 createdAt = time,
                 updatedAt = time,
             )
@@ -86,6 +88,7 @@ class WorkoutRepository(
                 rpe = values.rpe,
                 comment = values.note,
                 isDropSet = values.isDropSet,
+                side = values.side?.name.orEmpty(),
                 updatedAt = now(),
             ),
         )
@@ -264,6 +267,7 @@ private fun groupDayRows(rows: List<DayRow>): List<DayExercise> =
             memberDropSet = first.memberDropSet,
             plan = ExercisePlan.fromJson(first.exercisePlan),
             weightUnits = UnitSystem.entries.firstOrNull { it.name == first.exerciseWeightUnit },
+            perSide = first.exercisePerSide,
             sets = exerciseRows.mapNotNull { row ->
                 row.setId?.let { id ->
                     SetEntry(
@@ -276,6 +280,7 @@ private fun groupDayRows(rows: List<DayRow>): List<DayExercise> =
                             rpe = row.rpe,
                             note = row.comment.orEmpty(),
                             isDropSet = row.isDropSet == true,
+                            side = Side.of(row.side),
                         ),
                     )
                 }
@@ -293,5 +298,6 @@ private fun WorkoutSetEntity.toSetEntry() = SetEntry(
         rpe = rpe,
         note = comment,
         isDropSet = isDropSet,
+        side = Side.of(side),
     ),
 )

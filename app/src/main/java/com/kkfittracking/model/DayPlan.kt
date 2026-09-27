@@ -81,7 +81,8 @@ fun dayCompletion(day: List<DayExercise>): DayCompletion = DayCompletion(
             name = exercise.exerciseName,
             type = exercise.exerciseType,
             plannedSets = target.sets,
-            doneSets = exercise.sets.size - drops,
+            // A left and a right set make one set of a one-sided exercise.
+            doneSets = exercise.sets.fullSets(),
             plannedDrops = target.drops,
             doneDrops = drops,
             setsGuessed = target.guessed,
@@ -100,6 +101,8 @@ data class GuideTarget(
     val of: Int,
     /** The next set is a drop set. */
     val isDrop: Boolean = false,
+    /** The side to do next, for one-sided exercises halfway through a set. */
+    val side: Side? = null,
 )
 
 /**
@@ -115,6 +118,15 @@ fun guideTarget(day: List<DayExercise>, skipped: Set<String> = emptySet(), setti
         if (members.isEmpty()) continue
         val superset = (block as? Block.Superset)?.let { supersetContextOf(day, block.items.first().exerciseId) }
 
+        // The other side of a set that is halfway done comes first, with no rest.
+        members.forEach { exercise ->
+            val side = exercise.sets.sideDue() ?: return@forEach
+            val done = completion.getValue(exercise.exerciseId)
+            return GuideTarget(
+                exercise.exerciseId, exercise.exerciseName, "Set ${done.doneSets + 1} of ${done.plannedSets} · ${side.label.lowercase()}",
+                position(exercise.exerciseId), day.size, side = side,
+            )
+        }
         // A drop set that is due comes first: it follows its set with no rest.
         members.forEach { exercise ->
             val target = targetOf(exercise, superset)
@@ -171,7 +183,7 @@ fun upcomingExercises(
         played = played.map { exercise ->
             if (exercise.exerciseId != target.exerciseId) return@map exercise
             val weight = exercise.sets.lastOrNull()?.values?.weightKg ?: 20.0
-            exercise.copy(sets = exercise.sets + SetEntry("played-$step", SetValues(weight, 1, isDropSet = target.isDrop)))
+            exercise.copy(sets = exercise.sets + SetEntry("played-$step", SetValues(weight, 1, isDropSet = target.isDrop, side = target.side)))
         }
         target = guideTarget(played, skipped, settings) ?: return upcoming
         if (target.exerciseId != current.exerciseId && target.name !in upcoming) upcoming += target.name

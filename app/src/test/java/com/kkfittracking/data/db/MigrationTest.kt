@@ -149,6 +149,15 @@ class MigrationTest {
     }
 
     @Test
+    fun fromVersion7() = runTest {
+        createOldDatabase(7) { seedVersion1Rows() }
+        val db = openCurrent()
+
+        // Sets logged before sides existed count as whole sets.
+        assertNull(WorkoutRepository(db).observeDay(day).first().single().sets.single().values.side)
+    }
+
+    @Test
     fun fromVersion6() = runTest {
         createOldDatabase(6) { seedVersion1Rows() }
         val db = openCurrent()

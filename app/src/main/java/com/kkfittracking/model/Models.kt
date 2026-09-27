@@ -87,7 +87,45 @@ data class SetValues(
     val note: String = "",
     /** Done right after the previous set with less weight, without rest. */
     val isDropSet: Boolean = false,
+    /** For exercises done one side at a time: which side this set was; null for both or not chosen. */
+    val side: Side? = null,
 )
+
+/** The side of a one-arm or one-leg set. The name is stored in the database: never rename one. */
+enum class Side(val label: String, val short: String) {
+    LEFT("Left", "L"),
+    RIGHT("Right", "R"),
+    ;
+
+    val other: Side get() = if (this == LEFT) RIGHT else LEFT
+
+    companion object {
+        fun of(name: String?): Side? = entries.firstOrNull { it.name == name }
+    }
+}
+
+/**
+ * Normal (not drop) sets done in full: a left and a right set of a one-sided exercise make one set
+ * together; a set without a side counts on its own.
+ */
+fun List<SetEntry>.fullSets(): Int {
+    val normal = filter { !it.values.isDropSet }
+    val left = normal.count { it.values.side == Side.LEFT }
+    val right = normal.count { it.values.side == Side.RIGHT }
+    return normal.count { it.values.side == null } + minOf(left, right)
+}
+
+/** The side still to do to finish the current set (after a left set, the right), or null. */
+fun List<SetEntry>.sideDue(): Side? {
+    val normal = filter { !it.values.isDropSet }
+    val left = normal.count { it.values.side == Side.LEFT }
+    val right = normal.count { it.values.side == Side.RIGHT }
+    return when {
+        left > right -> Side.RIGHT
+        right > left -> Side.LEFT
+        else -> null
+    }
+}
 
 data class SetEntry(
     val id: String,
@@ -120,6 +158,8 @@ data class DayExercise(
     val plan: ExercisePlan = ExercisePlan(),
     /** The exercise's own weight unit; null follows the app's setting. */
     val weightUnits: UnitSystem? = null,
+    /** Done one side at a time: a left and a right set make one set. */
+    val perSide: Boolean = false,
 )
 
 /** An exercise to put on a day, from a plan or an earlier day, with its superset if it is in one. */

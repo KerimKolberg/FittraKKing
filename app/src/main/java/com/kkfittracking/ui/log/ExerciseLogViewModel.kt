@@ -29,6 +29,7 @@ import com.kkfittracking.model.Routine
 import com.kkfittracking.model.SetEntry
 import com.kkfittracking.model.SetValues
 import com.kkfittracking.model.Settings
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.SupersetContext
 import com.kkfittracking.model.SupersetMember
 import com.kkfittracking.model.UnitSystem
@@ -42,6 +43,7 @@ import com.kkfittracking.model.pendingDrop
 import com.kkfittracking.model.personalRecordSetIds
 import com.kkfittracking.model.recordScore
 import com.kkfittracking.model.roundToPlates
+import com.kkfittracking.model.sideDue
 import com.kkfittracking.timer.IntervalPhase
 import com.kkfittracking.timer.IntervalTimer
 import com.kkfittracking.timer.IntervalTimerState
@@ -189,7 +191,11 @@ class ExerciseLogViewModel(
         }
         viewModelScope.launch {
             val state = uiState.first { !it.isLoading }
-            if (input == SetInput()) input = startingInput(state)
+            if (input == SetInput()) {
+                // One-sided exercises start on the side still to do, else on the left.
+                val side = if (state.exercise?.perSide == true) state.sets.sideDue() ?: Side.LEFT else null
+                input = startingInput(state).copy(side = side)
+            }
             // Coming back after the planned sets: the drop sets are next.
             state.dueDrop?.let { enterDrop(it, state.units) }
         }
@@ -250,6 +256,9 @@ class ExerciseLogViewModel(
 
     /** The time a hold lasted, from the hold timer. */
     fun setHeldSeconds(total: Int) = updateInput(input.copy(minutes = (total / 60).toString(), seconds = (total % 60).toString()))
+
+    /** Which side the next set is (one-sided exercises). */
+    fun chooseSide(side: Side) = updateInput(input.copy(side = side))
 
     fun adjustWeight(direction: Int) = updateInput(input.adjustWeight(direction, uiState.value.units))
 
@@ -335,7 +344,8 @@ class ExerciseLogViewModel(
             return
         }
         val setsNow = state.sets + SetEntry("new", saved)
-        when (val step = nextStep(exerciseId, exercise.type, plan, setsNow, superset, settings)) {
+        val step = nextStep(exerciseId, exercise.type, plan, setsNow, superset, settings)
+        when (step) {
             is NextStep.DropSet -> {
                 enterDrop(step, state.units)
                 val reps = step.reps?.let { " × $it" }.orEmpty()
@@ -359,7 +369,15 @@ class ExerciseLogViewModel(
                 leaveDrops()
                 goTo?.let { switchTo = it }
             }
+            // Halfway through a one-sided set: the other side now, no rest, same exercise.
+            is NextStep.OtherSide -> {
+                restTimer.stop()
+                input = input.copy(side = step.side)
+                celebrate(listOf("Now the ${step.side.label.lowercase()} side"))
+            }
         }
+        // A full one-sided set is done: the next one starts on the left again.
+        if (exercise.perSide && step !is NextStep.OtherSide) input = input.copy(side = Side.LEFT)
     }
 
     /** Drop set mode with the drop's weight and reps filled in. */

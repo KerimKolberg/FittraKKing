@@ -64,6 +64,7 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Hold timer on phone and watch: counts down, buzzes until Done, counts on past zero (−0:10) and fills in the time held
 - [x] "Then: …" shows the next exercises during a guided workout (phone, notification and watch)
 - [x] Each exercise can use its own weight unit: kg, lb or machine levels (database version 7)
+- [x] Left and right sets for one-sided exercises (phone and watch): both sides make one set in plans, supersets and the guide (database version 8)
 - [ ] Later: write finished workouts to Health Connect, so they show up in Samsung Health and Google Fit
 - [ ] Health Connect: read daily steps (and optionally heart rate) that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
 - [ ] Cloud sync + accounts (see "Keeping the door open for cloud sync")

@@ -193,6 +193,18 @@ private fun Guiding(state: WatchState, viewModel: WatchViewModel) {
 @Composable
 private fun Inputs(state: WatchState, viewModel: WatchViewModel) {
     val fields = state.fields
+    if (fields.perSide) {
+        // Left or right: a left and a right set make one set.
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("LEFT" to "Left", "RIGHT" to "Right").forEach { (value, label) ->
+                Chip(
+                    onClick = { viewModel.chooseSide(value) },
+                    label = { Text(label) },
+                    colors = if (viewModel.side == value) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+                )
+            }
+        }
+    }
     if (fields.weight) {
         Stepper(
             value = "${formatNumber(viewModel.weight)} ${state.weightUnit}",

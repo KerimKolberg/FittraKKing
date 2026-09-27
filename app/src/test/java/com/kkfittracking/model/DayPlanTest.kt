@@ -166,4 +166,36 @@ class DayPlanTest {
         assertEquals(listOf("row", "curl", "plank"), upcomingExercises(day, now))
         assertEquals(listOf("row", "plank"), upcomingExercises(day, now, skipped = setOf("curl"), count = 2))
     }
+
+    @Test
+    fun aLeftAndARightSetMakeOneSet() {
+        fun sided(vararg sides: Side) = sides.mapIndexed { i, side -> SetEntry("s$i", SetValues(20.0, 10, side = side)) }
+        assertEquals(1, sided(Side.LEFT, Side.RIGHT, Side.LEFT).fullSets())
+        assertEquals(Side.RIGHT, sided(Side.LEFT, Side.RIGHT, Side.LEFT).sideDue())
+        assertNull(sided(Side.LEFT, Side.RIGHT).sideDue())
+
+        // In a 3-round superset, the left set of the curl is followed by its right one, not the row.
+        val superset = SupersetContext(listOf("curl", "row"), transitionSeconds = 20, roundRestSeconds = 90, rounds = 3)
+        assertEquals(
+            NextStep.OtherSide(Side.RIGHT),
+            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT), superset, Settings()),
+        )
+        assertEquals(
+            NextStep.Transition("row", 20),
+            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT, Side.RIGHT), superset, Settings()),
+        )
+
+        // The guide stays on the exercise for the other side, and counts both sides as one set.
+        val day = listOf(
+            exercise("curl", ExercisePlan(sets = 3)).copy(sets = sided(Side.LEFT), perSide = true),
+            exercise("row", ExercisePlan(sets = 3)),
+        )
+        val target = guideTarget(day)!!
+        assertEquals("curl", target.exerciseId)
+        assertEquals(Side.RIGHT, target.side)
+        assertEquals("Set 1 of 3 · right", target.step)
+        val bothSides = listOf(day[0].copy(sets = sided(Side.LEFT, Side.RIGHT)), day[1])
+        assertEquals("Set 2 of 3", guideTarget(bothSides)!!.step)
+        assertEquals(1, dayCompletion(bothSides).exercises.first().doneSets)
+    }
 }

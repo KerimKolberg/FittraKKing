@@ -196,6 +196,9 @@ sealed interface NextStep {
      */
     data class Rest(val seconds: Int, val nextExerciseId: String?) : NextStep
 
+    /** One side of a one-arm or one-leg set is done: now the [side] still to do, with no rest. */
+    data class OtherSide(val side: Side) : NextStep
+
     /** A whole session was logged (sports, HIIT): there is nothing to rest for. */
     data object Done : NextStep
 }
@@ -213,7 +216,9 @@ fun pendingDrop(
 ): NextStep.DropSet? {
     if (!plan.dropSets || type != ExerciseType.WEIGHT_REPS) return null
     val last = setsToday.lastOrNull() ?: return null
-    val normalSets = setsToday.count { !it.values.isDropSet }
+    // Drops come once the set is done on both sides.
+    if (setsToday.sideDue() != null) return null
+    val normalSets = setsToday.fullSets()
     val dropsDone = setsToday.takeLastWhile { it.values.isDropSet }.size
     if (normalSets != (plan.sets ?: 1) || dropsDone >= plan.drops) return null
     val weight = last.values.weightKg ?: return null
@@ -239,6 +244,8 @@ fun nextStep(
     settings: Settings,
 ): NextStep {
     if (type.isSession) return NextStep.Done
+    // One side done: the other side comes straight after, before any rest or the next exercise.
+    setsToday.sideDue()?.let { return NextStep.OtherSide(it) }
     val planned = superset?.rounds
     if (superset != null && planned != null && superset.memberIds.size >= 2 && exerciseId in superset.memberIds) {
         return nextInPlannedRounds(exerciseId, type, plan, setsToday, superset, planned, settings)
@@ -273,7 +280,7 @@ private fun nextInPlannedRounds(
     val roundPlan = superset.planFor(exerciseId, plan)
     pendingDrop(roundPlan, type, setsToday, settings.dropSetPercent, settings.unitSystem)?.let { return it }
     val mine = roundPlan.sets ?: planned
-    val round = (planned - mine + setsToday.count { !it.values.isDropSet }).coerceIn(1, planned)
+    val round = (planned - mine + setsToday.fullSets()).coerceIn(1, planned)
     val order = superset.memberIds
     val rest = superset.roundRestSeconds ?: settings.restTimerSeconds
     order.drop(order.indexOf(exerciseId) + 1).firstOrNull { superset.joins(it, round) }?.let {
@@ -290,7 +297,7 @@ private fun nextInPlannedRounds(
 fun supersetProgress(superset: SupersetContext, exerciseId: String, plan: ExercisePlan, setsToday: List<SetEntry>): String? {
     val planned = superset.rounds ?: return null
     val mine = superset.roundsOf(exerciseId) ?: planned
-    val round = planned - mine + setsToday.count { !it.values.isDropSet } + 1
+    val round = planned - mine + setsToday.fullSets() + 1
     if (round > planned) return "All $planned rounds done ✓"
     return listOfNotNull(
         "Round $round of $planned",
@@ -303,6 +310,6 @@ fun supersetProgress(superset: SupersetContext, exerciseId: String, plan: Exerci
 fun planProgress(plan: ExercisePlan, setsToday: List<SetEntry>, drop: NextStep.DropSet?): String? {
     val planned = plan.sets ?: return null
     if (drop != null) return "Drop ${drop.number} of ${drop.of}, no rest"
-    val done = setsToday.count { !it.values.isDropSet }
+    val done = setsToday.fullSets()
     return if (done < planned) "Set ${done + 1} of $planned" else "$planned of $planned sets done ✓"
 }

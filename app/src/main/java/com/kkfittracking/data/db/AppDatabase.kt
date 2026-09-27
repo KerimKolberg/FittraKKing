@@ -20,7 +20,7 @@ import androidx.room.migration.AutoMigrationSpec
         RoutineExerciseEntity::class,
         BodyMeasurementEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         // v2 adds routines and body measurements (new tables only).
@@ -35,6 +35,8 @@ import androidx.room.migration.AutoMigrationSpec
         AutoMigration(from = 5, to = 6),
         // v7 adds an exercise's own weight unit (kg, lb or machine levels).
         AutoMigration(from = 6, to = 7),
+        // v8 adds the side (left or right) of one-sided sets.
+        AutoMigration(from = 7, to = 8),
     ],
 )
 @TypeConverters(Converters::class)

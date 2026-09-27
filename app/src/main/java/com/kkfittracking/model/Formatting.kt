@@ -53,5 +53,6 @@ fun formatSet(values: SetValues, type: ExerciseType, units: UnitSystem): String 
     if (type.usesIntensity && values.note.isNotBlank()) {
         parts += values.note
     }
-    return parts.joinToString(" · ")
+    val text = parts.joinToString(" · ")
+    return values.side?.let { "${it.short} · $text" } ?: text
 }

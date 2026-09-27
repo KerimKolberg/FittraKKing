@@ -129,6 +129,8 @@ data class WorkoutSetEntity(
     val rpe: Int? = null,
     /** A drop set: done right after the previous set with less weight (added in v4). */
     @ColumnInfo(defaultValue = "0") val isDropSet: Boolean = false,
+    /** A [com.kkfittracking.model.Side] name for one-sided sets; empty for both sides (added in v8). */
+    @ColumnInfo(defaultValue = "") val side: String = "",
 )
 
 @Entity(tableName = "routines")

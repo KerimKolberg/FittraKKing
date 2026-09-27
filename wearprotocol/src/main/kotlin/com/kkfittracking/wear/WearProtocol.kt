@@ -33,6 +33,8 @@ data class WatchFields(
     val intensity: Boolean = false,
     /** "Reps", or "Rounds". */
     val repsLabel: String = "Reps",
+    /** Done one side at a time: each set is a left or a right one. */
+    val perSide: Boolean = false,
 )
 
 /** What the watch can record with its sensors (Health Services), for cardio and sessions. */
@@ -68,6 +70,8 @@ data class WatchState(
     val distance: Double? = null,
     val height: Double? = null,
     val intensity: Int? = null,
+    /** For one-sided exercises: the side to do now, "LEFT" or "RIGHT". */
+    val side: String? = null,
     /** The exercises after this one, to get ready for. */
     val upcoming: List<String> = emptyList(),
     val weightUnit: String = "kg",
@@ -125,6 +129,8 @@ sealed interface WatchCommand {
         /** In the state's height unit. */
         val height: Double? = null,
         val intensity: Int? = null,
+        /** "LEFT" or "RIGHT" for a one-sided set. */
+        val side: String? = null,
         /** E.g. "♥ 132 bpm" or "8,432 steps · ♥ avg 141 bpm". */
         val note: String = "",
         val isDrop: Boolean = false,
