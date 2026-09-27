@@ -7,19 +7,24 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.kkfittracking.data.BodyRepository
 import com.kkfittracking.data.GameRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.WorkoutRepository
 import com.kkfittracking.data.health.DailyActivity
 import com.kkfittracking.data.health.HealthConnect
+import com.kkfittracking.data.health.HealthWorkouts
 import com.kkfittracking.guide.GuideState
 import com.kkfittracking.guide.GuidedWorkout
 import com.kkfittracking.model.DayExercise
+import com.kkfittracking.model.DayWorkouts
 import com.kkfittracking.model.GameStats
 import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.Routine
 import com.kkfittracking.model.UnitSystem
+import com.kkfittracking.model.bodyweightOn
+import com.kkfittracking.model.dayWorkouts
 import com.kkfittracking.ui.appViewModelFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,6 +51,8 @@ data class WorkoutUiState(
     val date: LocalDate,
     val exercises: List<DayExercise> = emptyList(),
     val units: UnitSystem = UnitSystem.METRIC,
+    /** The day's workouts and their estimated calories; null before anything is logged. */
+    val energy: DayWorkouts? = null,
     val isLoading: Boolean = true,
 )
 
@@ -58,13 +65,32 @@ class WorkoutViewModel(
     gameRepository: GameRepository,
     private val guidedWorkout: GuidedWorkout,
     private val healthConnect: HealthConnect,
+    private val bodyRepository: BodyRepository,
+    private val healthWorkouts: HealthWorkouts,
 ) : ViewModel() {
     /** The shown day's steps and distance. */
     var steps by mutableStateOf<StepsState>(StepsState.Hidden)
         private set
 
-    /** What to ask Health Connect for. */
-    val healthPermissions: Set<String> get() = healthConnect.permissions
+    /** What to ask Health Connect for: reading steps, writing workouts and their calories. */
+    val healthPermissions: Set<String> get() = healthConnect.allPermissions
+
+    /** Sends the shown day's workouts to Health Connect; [onDone] gets a message for the user. */
+    fun sendToHealthConnect(onDone: (String) -> Unit) {
+        val date = uiState.value.date
+        viewModelScope.launch {
+            onDone(
+                when (val result = healthWorkouts.send(date)) {
+                    HealthWorkouts.Result.NotConnected -> "Connect Health Connect first (Settings → Health Connect)"
+                    is HealthWorkouts.Result.Sent -> when (result.workouts) {
+                        0 -> "Nothing logged on this day to send"
+                        1 -> "1 workout sent to Health Connect"
+                        else -> "${result.workouts} workouts sent to Health Connect"
+                    } + if (result.withCalories && result.workouts > 0) ", with about ${result.kcal} kcal" else ""
+                },
+            )
+        }
+    }
 
     /** The play button's guided workout, when one runs. */
     val guide: StateFlow<GuideState> = guidedWorkout.state
@@ -85,8 +111,15 @@ class WorkoutViewModel(
     val uiState: StateFlow<WorkoutUiState> = epochDay
         .flatMapLatest { day ->
             val date = LocalDate.ofEpochDay(day)
-            combine(workoutRepository.observeDay(date), settingsRepository.settings) { exercises, settings ->
-                WorkoutUiState(date = date, exercises = exercises, units = settings.unitSystem, isLoading = false)
+            combine(workoutRepository.observeDay(date), settingsRepository.settings, bodyRepository.measurements) { exercises, settings, body ->
+                val logged = exercises.any { it.sets.isNotEmpty() }
+                WorkoutUiState(
+                    date = date,
+                    exercises = exercises,
+                    units = settings.unitSystem,
+                    energy = if (logged) dayWorkouts(exercises, bodyweightOn(date, body), settings.unitSystem, System.currentTimeMillis()) else null,
+                    isLoading = false,
+                )
             }
         }
         .stateIn(
@@ -201,6 +234,8 @@ class WorkoutViewModel(
                 gameRepository = container.gameRepository,
                 guidedWorkout = container.guidedWorkout,
                 healthConnect = container.healthConnect,
+                bodyRepository = container.bodyRepository,
+                healthWorkouts = container.healthWorkouts,
             )
         }
     }

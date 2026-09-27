@@ -7,7 +7,9 @@ import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.GuideSession
 import com.kkfittracking.model.GuideSummary
 import com.kkfittracking.model.GuideTarget
+import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.dayCompletion
+import com.kkfittracking.model.dayWorkouts
 import com.kkfittracking.model.guideTarget
 import com.kkfittracking.model.upcomingExercises
 import kotlinx.coroutines.CoroutineScope
@@ -50,6 +52,10 @@ class GuidedWorkout(
     private val settingsRepository: SettingsRepository,
     private val onStarted: () -> Unit,
     private val now: () -> Long = System::currentTimeMillis,
+    /** The latest bodyweight in kg, for the calories in the summary. */
+    private val bodyweightKg: () -> Double? = { null },
+    /** Called when a workout ends, e.g. to send it to Health Connect. */
+    private val onStopped: (LocalDate) -> Unit = {},
 ) {
     private val session = MutableStateFlow<GuideSession?>(null)
 
@@ -100,8 +106,15 @@ class GuidedWorkout(
         val current = session.value ?: return
         val state = state.value
         val completion = if (state.session?.epochDay == current.epochDay) state.completion else DayCompletion(emptyList())
-        _summary.value = GuideSummary(current.epochDay, current.activeMillis(now()), completion, stoppedEarly = state.target != null)
+        val day = if (state.session?.epochDay == current.epochDay) state.day else emptyList()
+        val energy = dayWorkouts(day, bodyweightKg(), UnitSystem.METRIC, now())
+        _summary.value = GuideSummary(
+            current.epochDay, current.activeMillis(now()), completion, stoppedEarly = state.target != null,
+            kcal = energy.kcal.takeIf { day.any { it.sets.isNotEmpty() } },
+            bodyweightKnown = energy.bodyweightKnown,
+        )
         session.value = null
+        onStopped(LocalDate.ofEpochDay(current.epochDay))
     }
 
     fun consumeSummary() {

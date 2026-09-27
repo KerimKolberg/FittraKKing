@@ -44,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.health.connect.client.PermissionController
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kkfittracking.BuildConfig
@@ -71,6 +73,13 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val today = LocalDate.now().toString()
     var arrangingLibrary by rememberSaveable { mutableStateOf(false) }
+    val healthLauncher = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) {
+        viewModel.refreshHealthStatus()
+    }
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshHealthStatus()
+        onPauseOrDispose { }
+    }
     val sections by viewModel.sections.collectAsStateWithLifecycle()
 
     val backupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) {
@@ -219,6 +228,31 @@ fun SettingsScreen(
                 subtitle = "After saving a set in a superset, open the next exercise of the superset",
                 checked = current.supersetAutoAdvance,
                 onCheckedChange = viewModel::setSupersetAutoAdvance,
+            )
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            SectionTitle("Health Connect")
+            Text(
+                text = "Shares with Samsung Health, Google Fit and other health apps: the app reads your daily steps " +
+                    "and writes your finished workouts. " + (viewModel.healthStatus?.let { "Status: $it." } ?: ""),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            ActionRow("Connect Health Connect", "Choose what the app may read and write", busy = false) {
+                healthLauncher.launch(viewModel.healthPermissions)
+            }
+            SwitchRow(
+                title = "Send finished workouts",
+                subtitle = "When a guided workout ends. Any day can also be sent from its menu",
+                checked = current.sendWorkoutsToHealth,
+                onCheckedChange = viewModel::setSendWorkoutsToHealth,
+            )
+            SwitchRow(
+                title = "Include estimated calories",
+                subtitle = "Leave off if your watch already counts calories all day (Samsung Health), or they count twice",
+                checked = current.sendCaloriesToHealth,
+                onCheckedChange = viewModel::setSendCaloriesToHealth,
             )
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 

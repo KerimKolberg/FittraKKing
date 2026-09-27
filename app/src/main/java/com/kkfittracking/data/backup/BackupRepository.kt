@@ -169,6 +169,8 @@ private fun Settings.toDto() = SettingsDto(
     supersetTransitionSeconds = supersetTransitionSeconds,
     sectionOrder = sectionOrder,
     styleOrder = styleOrder,
+    sendWorkoutsToHealth = sendWorkoutsToHealth,
+    sendCaloriesToHealth = sendCaloriesToHealth,
 )
 
 /** Unknown values fall back to the defaults: settings are not worth failing a restore over. */
@@ -186,5 +188,7 @@ private fun SettingsDto.toSettings(): Settings {
         supersetTransitionSeconds = supersetTransitionSeconds,
         sectionOrder = sectionOrder,
         styleOrder = styleOrder,
+        sendWorkoutsToHealth = sendWorkoutsToHealth,
+        sendCaloriesToHealth = sendCaloriesToHealth,
     )
 }

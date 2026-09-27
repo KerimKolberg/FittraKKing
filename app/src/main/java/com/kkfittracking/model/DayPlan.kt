@@ -245,7 +245,15 @@ data class GuideSession(
 }
 
 /** What a stopped guided workout did: shown once it ends. */
-data class GuideSummary(val epochDay: Long, val activeMillis: Long, val completion: DayCompletion, val stoppedEarly: Boolean)
+data class GuideSummary(
+    val epochDay: Long,
+    val activeMillis: Long,
+    val completion: DayCompletion,
+    val stoppedEarly: Boolean,
+    /** Estimated calories of the day's workouts; null when nothing was logged. */
+    val kcal: Int? = null,
+    val bodyweightKnown: Boolean = false,
+)
 
 /** What moving a day's unfinished part to another day does: exercises to add there, entries to take off here. */
 data class Postponement(

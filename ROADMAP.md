@@ -65,7 +65,9 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] "Then: …" shows the next exercises during a guided workout (phone, notification and watch)
 - [x] Each exercise can use its own weight unit: kg, lb or machine levels (database version 7)
 - [x] Left and right sets for one-sided exercises (phone and watch): both sides make one set in plans, supersets and the guide (database version 8)
-- [ ] Later: write finished workouts to Health Connect, so they show up in Samsung Health and Google Fit
+- [x] Finished workouts written to Health Connect (at the end of a guided workout, or from a day's menu): gym blocks as strength training, runs, rides and sports sessions as their own workouts; sending a day again replaces it
+- [x] Calorie estimate per day and at the end of a workout (MET × bodyweight × time; the watch's measured calories when it recorded the activity); optionally sent to Health Connect
+- [ ] Maybe later: iPhone version (Kotlin Multiplatform + Compose Multiplatform; HealthKit; a separate Apple Watch app)
 - [ ] Health Connect: read daily steps (and optionally heart rate) that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
 - [ ] Cloud sync + accounts (see "Keeping the door open for cloud sync")
 

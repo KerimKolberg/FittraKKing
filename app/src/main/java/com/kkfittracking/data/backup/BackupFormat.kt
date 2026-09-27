@@ -172,6 +172,8 @@ data class SettingsDto(
     val supersetTransitionSeconds: Int = 15,
     val sectionOrder: List<String> = emptyList(),
     val styleOrder: List<String> = emptyList(),
+    val sendWorkoutsToHealth: Boolean = true,
+    val sendCaloriesToHealth: Boolean = false,
 )
 
 /** A backup that cannot be restored, with a message for the user. */

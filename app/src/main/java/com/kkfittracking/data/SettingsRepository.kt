@@ -28,6 +28,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             supersetTransitionSeconds = prefs[SUPERSET_TRANSITION] ?: defaults.supersetTransitionSeconds,
             sectionOrder = prefs[SECTION_ORDER].toList(),
             styleOrder = prefs[STYLE_ORDER].toList(),
+            sendWorkoutsToHealth = prefs[SEND_WORKOUTS] ?: defaults.sendWorkoutsToHealth,
+            sendCaloriesToHealth = prefs[SEND_CALORIES] ?: defaults.sendCaloriesToHealth,
         )
     }
 
@@ -58,7 +60,13 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         it[SUPERSET_TRANSITION] = settings.supersetTransitionSeconds.coerceIn(0, MAX_TRANSITION_SECONDS)
         it[SECTION_ORDER] = settings.sectionOrder.joinToString(",")
         it[STYLE_ORDER] = settings.styleOrder.joinToString(",")
+        it[SEND_WORKOUTS] = settings.sendWorkoutsToHealth
+        it[SEND_CALORIES] = settings.sendCaloriesToHealth
     }
+
+    suspend fun setSendWorkoutsToHealth(value: Boolean) = dataStore.edit { it[SEND_WORKOUTS] = value }
+
+    suspend fun setSendCaloriesToHealth(value: Boolean) = dataStore.edit { it[SEND_CALORIES] = value }
 
     /** The order of the library's sections (category ids); empty goes back to the default. */
     suspend fun setSectionOrder(order: List<String>) = dataStore.edit { it[SECTION_ORDER] = order.joinToString(",") }
@@ -97,6 +105,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         private val SUPERSET_TRANSITION = intPreferencesKey("superset_transition_seconds")
         private val SECTION_ORDER = stringPreferencesKey("section_order")
         private val STYLE_ORDER = stringPreferencesKey("style_order")
+        private val SEND_WORKOUTS = booleanPreferencesKey("send_workouts_to_health")
+        private val SEND_CALORIES = booleanPreferencesKey("send_calories_to_health")
     }
 }
 

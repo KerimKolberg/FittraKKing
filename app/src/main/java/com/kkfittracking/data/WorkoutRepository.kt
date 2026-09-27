@@ -16,6 +16,7 @@ import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.SetEntry
 import com.kkfittracking.model.SetValues
 import com.kkfittracking.model.Side
+import com.kkfittracking.model.TrainingStyle
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.groupSupersets
 import com.kkfittracking.model.historiesOf
@@ -268,6 +269,7 @@ private fun groupDayRows(rows: List<DayRow>): List<DayExercise> =
             plan = ExercisePlan.fromJson(first.exercisePlan),
             weightUnits = UnitSystem.entries.firstOrNull { it.name == first.exerciseWeightUnit },
             perSide = first.exercisePerSide,
+            styles = TrainingStyle.resolveAll(first.exerciseStyle, BuiltInExercises.regionKeyOf(first.exerciseCategoryId), first.exerciseType),
             sets = exerciseRows.mapNotNull { row ->
                 row.setId?.let { id ->
                     SetEntry(
@@ -282,6 +284,7 @@ private fun groupDayRows(rows: List<DayRow>): List<DayExercise> =
                             isDropSet = row.isDropSet == true,
                             side = Side.of(row.side),
                         ),
+                        loggedAtMillis = row.setCreatedAt,
                     )
                 }
             },
@@ -300,4 +303,5 @@ private fun WorkoutSetEntity.toSetEntry() = SetEntry(
         isDropSet = isDropSet,
         side = Side.of(side),
     ),
+    loggedAtMillis = createdAt,
 )

@@ -262,6 +262,12 @@ fun GuideSummaryDialog(summary: GuideSummary, onDismiss: () -> Unit, onMoveRest:
                     "${completion.percent}% of the plan done in ${formatDuration((summary.activeMillis / 1000).toInt())}" +
                         " of training (pauses not counted).",
                 )
+                summary.kcal?.let { kcal ->
+                    Text(
+                        "🔥 About $kcal kcal (estimate" + (if (summary.bodyweightKnown) ")" else ", with a typical bodyweight: add yours in the body tracker)"),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
                 LinearProgressIndicator(progress = { completion.percent / 100f }, modifier = Modifier.fillMaxWidth())
                 CompletionLists(completion)
                 val left = completion.exercises.count { !it.isDone }

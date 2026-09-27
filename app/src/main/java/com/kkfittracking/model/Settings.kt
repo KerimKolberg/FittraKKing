@@ -76,4 +76,8 @@ data class Settings(
     val sectionOrder: List<String> = emptyList(),
     /** The training styles (their names) in the user's order; empty for the default order. */
     val styleOrder: List<String> = emptyList(),
+    /** Finished workouts go to Health Connect (Samsung Health, Google Fit…) when it is connected. */
+    val sendWorkoutsToHealth: Boolean = true,
+    /** The estimated calories go along; off, as a watch that counts calories all day would count them twice. */
+    val sendCaloriesToHealth: Boolean = false,
 )

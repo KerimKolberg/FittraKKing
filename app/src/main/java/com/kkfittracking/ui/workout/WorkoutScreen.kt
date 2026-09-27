@@ -72,6 +72,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kkfittracking.data.health.HealthConnect
 import com.kkfittracking.model.Block
 import com.kkfittracking.model.DayExercise
+import com.kkfittracking.model.DayWorkouts
 import com.kkfittracking.model.GameStats
 import com.kkfittracking.model.Routine
 import com.kkfittracking.model.UnitSystem
@@ -178,6 +179,11 @@ fun WorkoutScreen(
                                 if (state.exercises.isNotEmpty()) {
                                     MenuItem("Select exercises to remove", close) { selection = emptySet() }
                                 }
+                                if (state.energy != null) {
+                                    MenuItem("Send to Health Connect", close) {
+                                        viewModel.sendToHealthConnect { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+                                    }
+                                }
                                 if (completion.exercises.any { !it.isDone } && !guide.isActiveOn(state.date)) {
                                     MenuItem("Move what's left to another day", close) { movingRest = true }
                                 }
@@ -218,6 +224,7 @@ fun WorkoutScreen(
                 onToday = viewModel::showToday,
             )
             gameStats?.let { GameSummaryBar(it, onClick = onOpenAchievements) }
+            state.energy?.let { EnergyBar(it) }
             StepsBar(
                 steps = viewModel.steps,
                 units = state.units,
@@ -425,6 +432,18 @@ fun WorkoutScreen(
             },
         )
     }
+}
+
+/** The day's training time and estimated calories. */
+@Composable
+private fun EnergyBar(energy: DayWorkouts) {
+    val kinds = energy.sessions.map { it.kind.label }.distinct().joinToString(", ")
+    Text(
+        text = "🔥 About ${energy.kcal} kcal · ${energy.minutes} min" + (if (kinds.isNotEmpty()) " · $kinds" else "") +
+            if (energy.bodyweightKnown) "" else " (typical bodyweight)",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+    )
 }
 
 /** The day's steps and distance from Health Connect, or a button to connect it. */

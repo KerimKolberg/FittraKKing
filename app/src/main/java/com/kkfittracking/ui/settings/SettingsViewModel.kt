@@ -11,6 +11,7 @@ import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.backup.BackupException
 import com.kkfittracking.data.backup.BackupFile
 import com.kkfittracking.data.backup.DataTransfer
+import com.kkfittracking.data.health.HealthConnect
 import com.kkfittracking.model.Category
 import com.kkfittracking.model.Settings
 import com.kkfittracking.model.ThemeMode
@@ -30,7 +31,34 @@ class SettingsViewModel(
     private val repository: SettingsRepository,
     private val dataTransfer: DataTransfer,
     exerciseRepository: ExerciseRepository,
+    private val healthConnect: HealthConnect,
 ) : ViewModel() {
+    /** Whether Health Connect is there, and whether workouts may be written to it. */
+    var healthStatus by mutableStateOf<String?>(null)
+        private set
+
+    /** What to ask Health Connect for: reading steps, writing workouts and their calories. */
+    val healthPermissions: Set<String> get() = healthConnect.allPermissions
+
+    fun refreshHealthStatus() {
+        viewModelScope.launch {
+            healthStatus = when (healthConnect.status()) {
+                HealthConnect.Status.UNAVAILABLE -> "Health Connect is not available on this phone"
+                HealthConnect.Status.NEEDS_UPDATE -> "Install or update Health Connect first"
+                HealthConnect.Status.AVAILABLE ->
+                    if (runCatching { healthConnect.canWriteWorkouts() }.getOrDefault(false)) "Connected" else "Not connected yet"
+            }
+        }
+    }
+
+    fun setSendWorkoutsToHealth(value: Boolean) {
+        viewModelScope.launch { repository.setSendWorkoutsToHealth(value) }
+    }
+
+    fun setSendCaloriesToHealth(value: Boolean) {
+        viewModelScope.launch { repository.setSendCaloriesToHealth(value) }
+    }
+
     /** The library's sections, in the user's order, for arranging them. */
     val sections: StateFlow<List<Category>> = combine(exerciseRepository.categories, repository.settings) { categories, settings ->
         categories.inUserOrder(settings.sectionOrder) { it.id }
@@ -152,7 +180,7 @@ class SettingsViewModel(
 
     companion object {
         val Factory = appViewModelFactory { container ->
-            SettingsViewModel(container.settingsRepository, container.dataTransfer, container.exerciseRepository)
+            SettingsViewModel(container.settingsRepository, container.dataTransfer, container.exerciseRepository, container.healthConnect)
         }
     }
 }

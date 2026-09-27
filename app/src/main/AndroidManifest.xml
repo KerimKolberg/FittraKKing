@@ -10,6 +10,9 @@
     <!-- Daily steps and distance from Health Connect (read only). -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <!-- Finished workouts and, if chosen, their estimated calories, written to Health Connect. -->
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
 
     <queries>
         <!-- Health Connect as an app, on Android 13 and older. -->

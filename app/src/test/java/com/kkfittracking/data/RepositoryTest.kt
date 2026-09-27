@@ -8,6 +8,7 @@ import com.kkfittracking.data.db.AppDatabase
 import com.kkfittracking.data.db.CategoryEntity
 import com.kkfittracking.data.db.ExerciseEntity
 import com.kkfittracking.guide.GuidedWorkout
+import com.kkfittracking.model.ActivityKind
 import com.kkfittracking.model.ArrangedExercise
 import com.kkfittracking.model.BodyMetric
 import com.kkfittracking.model.ExerciseLink
@@ -17,6 +18,8 @@ import com.kkfittracking.model.Muscle
 import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.SetValues
 import com.kkfittracking.model.TrainingStyle
+import com.kkfittracking.model.UnitSystem
+import com.kkfittracking.model.dayWorkouts
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -585,5 +588,21 @@ class RepositoryTest {
         assertEquals(listOf(bench), workouts.observeDay(day).first().map { it.exerciseId })
         assertEquals(listOf(bench, squat), workouts.observeDay(day.plusDays(1)).first().map { it.exerciseId })
         assertEquals(0, workouts.moveUnfinished(day, day))
+    }
+
+    @Test
+    fun aDaysWorkoutsComeFromWhenTheSetsWereLogged() = runTest {
+        exercises.syncBuiltIns()
+        clock = 1_800_000_000_000L
+        workouts.addSet(day, bench, SetValues(80.0, 8))
+        clock += 3 * 60_000L
+        workouts.addSet(day, bench, SetValues(80.0, 8))
+
+        val logged = workouts.observeDay(day).first().single()
+        assertEquals(TrainingStyle.STRENGTH, logged.styles.first())
+        assertTrue(logged.sets.all { it.loggedAtMillis != null })
+        val session = dayWorkouts(listOf(logged), 80.0, UnitSystem.METRIC, clock).sessions.single()
+        assertEquals(ActivityKind.STRENGTH, session.kind)
+        assertEquals(5, session.minutes)
     }
 }

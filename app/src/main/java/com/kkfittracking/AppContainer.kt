@@ -12,9 +12,11 @@ import com.kkfittracking.data.backup.BackupRepository
 import com.kkfittracking.data.backup.DataTransfer
 import com.kkfittracking.data.db.AppDatabase
 import com.kkfittracking.data.health.HealthConnect
+import com.kkfittracking.data.health.HealthWorkouts
 import com.kkfittracking.guide.GuidedWorkout
 import com.kkfittracking.guide.WatchBridge
 import com.kkfittracking.guide.WorkoutGuideService
+import com.kkfittracking.model.bodyweightOn
 import com.kkfittracking.timer.Alerts
 import com.kkfittracking.timer.IntervalAlarm
 import com.kkfittracking.timer.IntervalTimer
@@ -23,6 +25,12 @@ import com.kkfittracking.timer.RestTimerAlarm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
@@ -66,6 +74,14 @@ class AppContainer(context: Context) {
     val intervalTimer = IntervalTimer(appScope, onEvent = IntervalAlarm(alerts)::onEvent)
 
     /** The play button's guided workout, with its ongoing notification. */
+    /** The latest bodyweight, for the calorie estimates. */
+    private val bodyweightNow: StateFlow<Double?> = bodyRepository.measurements
+        .map { bodyweightOn(LocalDate.now(), it) }
+        .stateIn(appScope, SharingStarted.Eagerly, null)
+
+    /** Finished workouts to Health Connect. */
+    val healthWorkouts = HealthWorkouts(healthConnect, workoutRepository, bodyRepository, settingsRepository)
+
     val guidedWorkout = GuidedWorkout(
         scope = appScope,
         workoutRepository = workoutRepository,
@@ -73,6 +89,8 @@ class AppContainer(context: Context) {
         // Started from the watch while the phone app is in the background, Android may refuse the
         // notification; the workout still runs.
         onStarted = { runCatching { WorkoutGuideService.start(appContext) } },
+        bodyweightKg = { bodyweightNow.value },
+        onStopped = { date -> appScope.launch { healthWorkouts.sendIfEnabled(date) } },
     )
 
     /** The watch app's link to the guided workout. */

@@ -35,6 +35,9 @@ data class DayRow(
     val exercisePlan: String,
     val exerciseWeightUnit: String,
     val exercisePerSide: Boolean,
+    val exerciseStyle: String,
+    val exerciseCategoryId: String,
+    val setCreatedAt: Long?,
 )
 
 /** Every logged set with its date and exercise details, for the game stats. */
@@ -196,7 +199,9 @@ interface WorkoutDao {
                s.rpe AS rpe, s.comment AS comment, s.isDropSet AS isDropSet, s.side AS side, we.supersetId AS supersetId,
                we.transitionSeconds AS transitionSeconds, we.roundRestSeconds AS roundRestSeconds,
                we.supersetRounds AS supersetRounds, we.supersetDropLast AS supersetDropLast,
-               we.memberRounds AS memberRounds, we.memberDropSet AS memberDropSet, e.plan AS exercisePlan, e.weightUnit AS exerciseWeightUnit, e.perSide AS exercisePerSide
+               we.memberRounds AS memberRounds, we.memberDropSet AS memberDropSet, e.plan AS exercisePlan,
+               e.weightUnit AS exerciseWeightUnit, e.perSide AS exercisePerSide, e.style AS exerciseStyle,
+               e.categoryId AS exerciseCategoryId, s.createdAt AS setCreatedAt
         FROM workouts w
         JOIN workout_exercises we ON we.workoutId = w.id AND we.deletedAt IS NULL
         JOIN exercises e ON e.id = we.exerciseId

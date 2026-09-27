@@ -130,6 +130,8 @@ fun List<SetEntry>.sideDue(): Side? {
 data class SetEntry(
     val id: String,
     val values: SetValues,
+    /** When the set was logged (epoch milliseconds), if known: for the workout's start and end. */
+    val loggedAtMillis: Long? = null,
 )
 
 /** One exercise logged on a given day, with its sets in order. */
@@ -160,6 +162,8 @@ data class DayExercise(
     val weightUnits: UnitSystem? = null,
     /** Done one side at a time: a left and a right set make one set. */
     val perSide: Boolean = false,
+    /** How it trains, the main way first: for the kind of workout and its calories. */
+    val styles: List<TrainingStyle> = emptyList(),
 )
 
 /** An exercise to put on a day, from a plan or an earlier day, with its superset if it is in one. */

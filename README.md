@@ -22,6 +22,8 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 - **Supersets**: group 2 to 12 exercises and log them round by round. "Superset edit" arranges a day or a plan by dragging, with the time to walk to the next exercise and the rest after each round; plans can bring their supersets along. Set the rounds of a superset, a drop set on the last round for all, and per exercise how many rounds it joins or its own drop set choice
 - **Tendons**: isometric and eccentric exercises show the tendons they train (patellar, Achilles, rotator cuff, elbow tendons…) with a drawing and what each one connects; filter by tendon in the library
 - **Watch app** (Wear OS): follow the guided workout on the wrist and log sets there, synced with the phone
+- **Workouts to Health Connect**: finished workouts show up in Samsung Health and Google Fit (gym work as strength training, runs, rides and sports as their own workouts), with an estimated calorie count if you like
+- **Calories**: an estimate for each day from MET values and your bodyweight (±20–30 %), or what the watch measured when it recorded the activity
 - **Daily steps**: the day's steps and distance from Health Connect (what Samsung Health, Google Fit and your watch record), shown on each day
 - **Kilos, pounds or machine levels**: each exercise can have its own weight unit (tap "Unit" under the weight), for machines marked in lb or with just pin numbers
 - **Left and right**: exercises done one side at a time have Left and Right buttons; a left and a right set count as one set, so supersets and the guide wait for both sides
