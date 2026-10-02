@@ -76,16 +76,24 @@ class BuiltInExercisesTest {
         BuiltInTendons.exerciseNames.forEach { assertTrue("$it is not a built-in exercise", it in names) }
         val spanish = BuiltInExercises.exercises.single { it.name == "Spanish Squat Hold" }
         assertEquals(listOf(Tendon.PATELLAR, Tendon.QUADRICEPS), BuiltInTendons.of(spanish.id))
-        // From a real plan: the slow pelvic drop is there, filed under glutes, and loads the gluteal tendons.
+        // From a real plan: the slow pelvic drop is there, filed under glutes, and loads the gluteal tendons and the IT band.
         val drop = BuiltInExercises.exercises.single { it.name == "Slow Single-Leg Pelvic Drop" }
         assertEquals(Muscle.GLUTES, drop.muscle)
-        assertEquals(listOf(Tendon.GLUTEAL), BuiltInTendons.of(drop.id))
+        assertEquals(listOf(Tendon.GLUTEAL, Tendon.ILIOTIBIAL), BuiltInTendons.of(drop.id))
         // Every tendon has exercises for it.
         val covered = BuiltInExercises.exercises.flatMap { BuiltInTendons.of(it.id) }.toSet()
         assertEquals(Tendon.entries.toSet(), covered)
         // The ball between the heels turns a calf raise into arch work for the posterior tibial tendon.
         val ballSqueeze = BuiltInExercises.exercises.single { it.name == "Heel Raise with Ball Squeeze" }
         assertTrue(Tendon.POSTERIOR_TIBIAL in BuiltInTendons.of(ballSqueeze.id))
+        // Every grip for the finger tendons; the thumb and the neck and feet are not forgotten.
+        val pocket = BuiltInExercises.exercises.single { it.name == "Two-Finger Pocket Hang" }
+        assertEquals(listOf(Tendon.FINGER_FLEXORS), BuiltInTendons.of(pocket.id))
+        val thumb = BuiltInExercises.exercises.single { it.name == "Thumb Band Extension" }
+        assertEquals(listOf(Tendon.THUMB), BuiltInTendons.of(thumb.id))
+        assertEquals(Muscle.NECK, BuiltInExercises.exercises.single { it.name == "Chin Tuck Hold" }.muscle)
+        assertEquals("back", BuiltInExercises.exercises.single { it.name == "Chin Tuck Hold" }.regionKey)
+        assertTrue(Muscle.FEET in BuiltInExercises.exercises.single { it.name == "Short Foot Hold" }.muscles)
     }
 
     @Test

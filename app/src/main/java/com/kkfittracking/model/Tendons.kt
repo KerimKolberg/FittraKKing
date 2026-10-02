@@ -72,6 +72,12 @@ enum class Tendon(val label: String, val area: TendonArea, val connects: String,
         "the side glutes (medius and minimus) to the outer hip bone (greater trochanter)",
         "Pain on the side of the hip, often when lying on it. Side holds and bridges load them gently.",
     ),
+    ILIOTIBIAL(
+        "Iliotibial band (IT band)", TendonArea.KNEE,
+        "the hip (glutes and the TFL) down the outside of the thigh to the outer shinbone",
+        "A tendon-like band that steadies the outside of the knee. Pain on the outer knee in runners and " +
+            "cyclists usually comes from weak side glutes: side holds, hip hikes and lateral step-downs help.",
+    ),
     ROTATOR_CUFF(
         "Rotator cuff tendons", TendonArea.SHOULDER,
         "four small muscles from the shoulder blade to the top of the upper arm bone",
@@ -98,6 +104,12 @@ enum class Tendon(val label: String, val area: TendonArea, val connects: String,
         "Triceps tendon", TendonArea.ELBOW,
         "the triceps to the point of the elbow (olecranon)",
         "Works hard in dips, skullcrushers and push ups; slow lowering builds it up.",
+    ),
+    THUMB(
+        "Thumb tendons (De Quervain's)", TendonArea.HAND,
+        "the forearm muscles that lift and spread the thumb, over the thumb side of the wrist, to the thumb",
+        "Pain at the thumb side of the wrist from pinching, gripping and lifting a baby or phone all day. " +
+            "Band thumb lifts, radial deviation and pinch holds, built up slowly, load them.",
     ),
     FINGER_FLEXORS(
         "Finger flexor tendons & pulleys", TendonArea.HAND,

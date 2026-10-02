@@ -35,7 +35,7 @@ fun TendonIcon(tendon: Tendon, modifier: Modifier = Modifier, size: Dp = 48.dp) 
             TendonArea.HIP -> sketch.hip(tendon)
             TendonArea.SHOULDER -> sketch.shoulder(tendon)
             TendonArea.ELBOW -> sketch.elbow(tendon)
-            TendonArea.HAND -> sketch.hand()
+            TendonArea.HAND -> sketch.hand(tendon)
         }
     }
 }
@@ -58,7 +58,12 @@ private class Sketch(val scope: DrawScope, val u: Float, val bone: Color, val mu
         line(bone, 11f, 13.5f, 11f, 23f, 3f)
         dot(bone, 11f, 12.2f, 2.2f)
         dot(bone, 14.8f, 12f, 1.7f)
-        if (tendon == Tendon.PATELLAR) tendon(14.8f, 13.8f, 12.8f, 17f) else tendon(15f, 6.5f, 15f, 10.3f)
+        when (tendon) {
+            Tendon.PATELLAR -> tendon(14.8f, 13.8f, 12.8f, 17f)
+            // Down the outside of the thigh to the shinbone.
+            Tendon.ILIOTIBIAL -> tendon(12.6f, 1f, 12.6f, 14.8f)
+            else -> tendon(15f, 6.5f, 15f, 10.3f)
+        }
     }
 
     /** Side view of a lower leg and foot, toes to the right. */
@@ -151,14 +156,19 @@ private class Sketch(val scope: DrawScope, val u: Float, val bone: Color, val mu
     }
 
     /** A hand from the palm side: forearm, palm and fingers, with the flexor tendons and their rings. */
-    fun hand() {
+    fun hand(tendon: Tendon) {
         line(muscle, 12f, 17f, 12f, 23f, 6f)
         scope.drawRoundRect(bone, p(7f, 9f), Size(10f * u, 8f * u), CornerRadius(2f * u))
+        val fingers = tendon == Tendon.FINGER_FLEXORS
         listOf(8f, 10.7f, 13.3f, 16f).forEach { x ->
             line(bone, x, 9f, x, 2f, 1.9f)
-            tendon(x, 16f, x, 3.5f)
-            dot(highlight, x, 6f, 1.1f)
+            if (fingers) {
+                tendon(x, 16f, x, 3.5f)
+                dot(highlight, x, 6f, 1.1f)
+            }
         }
         line(bone, 7f, 14f, 3.5f, 10f, 1.9f)
+        // The thumb's tendons run from the forearm over the thumb side of the wrist.
+        if (!fingers) tendon(9.5f, 21f, 3.8f, 10.5f)
     }
 }

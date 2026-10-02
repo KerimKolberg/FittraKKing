@@ -316,6 +316,41 @@ object StarterPlans {
                 "Kneeling Ankle Stretch",
             ),
         ),
+        // Finger tendons in every grip, and the parts that are always forgotten.
+        StarterPlan(
+            "Finger tendons",
+            listOf(
+                "Tendon Gliding",
+                "Low-Intensity Finger Loading",
+                "Density Hang",
+                "Three-Finger Drag Hang",
+                "Two-Finger Pocket Hang",
+                "Sloper Hang",
+                "Wide Pinch Hold",
+                "Lumbrical Hold",
+                "Thumb Band Extension",
+                "Finger Extension with Band",
+            ),
+            supersets = listOf(listOf("Wide Pinch Hold", "Thumb Band Extension"), listOf("Lumbrical Hold", "Finger Extension with Band")),
+        ),
+        StarterPlan(
+            "Forgotten parts",
+            listOf(
+                "Crocodile Breathing",
+                "Chin Tuck Hold",
+                "4-Way Neck Isometric",
+                "Toe Yoga",
+                "Towel Scrunch",
+                "Ankle CARs",
+                "Terminal Knee Extension",
+                "Adductor Rockback",
+                "Serratus Foam Roller Wall Slide",
+                "Isometric Supination Hold",
+                "Thumb Band Abduction",
+                "Pelvic Floor Hold",
+            ),
+            supersets = listOf(listOf("Chin Tuck Hold", "Toe Yoga"), listOf("Terminal Knee Extension", "Serratus Foam Roller Wall Slide")),
+        ),
     )
 
     fun exerciseId(name: String): String = BuiltInExercises.stableId("exercise", BuiltInExercises.keyOf(name))

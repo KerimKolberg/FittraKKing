@@ -16,6 +16,7 @@ import com.kkfittracking.model.Muscle.ADDUCTORS
 import com.kkfittracking.model.Muscle.BICEPS
 import com.kkfittracking.model.Muscle.CALVES
 import com.kkfittracking.model.Muscle.CHEST
+import com.kkfittracking.model.Muscle.FEET
 import com.kkfittracking.model.Muscle.FOREARMS
 import com.kkfittracking.model.Muscle.FRONT_DELTS
 import com.kkfittracking.model.Muscle.FULL_BODY
@@ -24,6 +25,8 @@ import com.kkfittracking.model.Muscle.HAMSTRINGS
 import com.kkfittracking.model.Muscle.HIPS
 import com.kkfittracking.model.Muscle.LATS
 import com.kkfittracking.model.Muscle.LOWER_BACK
+import com.kkfittracking.model.Muscle.MIND
+import com.kkfittracking.model.Muscle.NECK
 import com.kkfittracking.model.Muscle.OBLIQUES
 import com.kkfittracking.model.Muscle.QUADS
 import com.kkfittracking.model.Muscle.REAR_DELTS
@@ -645,7 +648,10 @@ object BuiltInExercises {
             e("Heel Raise with Ball Squeeze", REPS, tempo = "3-1-1-0"),
             e("Heavy Slow Seated Calf Raise", tempo = "3-0-3-0"),
         )
-        group(SHINS, STRENGTH, e("Banded Ankle Inversion", REPS, perSide = true), e("Short Foot Hold", TIME))
+        group(
+            SHINS, STRENGTH,
+            e("Banded Ankle Inversion", REPS, perSide = true), e("Short Foot Hold", TIME, also = listOf(FEET)),
+        )
         group(
             HAMSTRINGS, ISOMETRIC,
             e("Long-Lever Bridge Hold", TIME, perSide = true, also = listOf(GLUTES)),
@@ -755,6 +761,59 @@ object BuiltInExercises {
         )
         group(ABS, STRENGTH, e("Flutter Kicks", TIME, also = listOf(HIPS)))
         group(QUADS, PLYOMETRIC, e("Streamline Squat Jump", REPS, also = listOf(GLUTES, CALVES)))
+
+        // Finger tendons and pulleys in every grip a climber uses, from easy daily loading to max hangs.
+        group(
+            FOREARMS, ISOMETRIC,
+            e("Small Edge Max Hang", TIME_WEIGHT, also = listOf(LATS)), e("Three-Finger Drag Hang", TIME_WEIGHT),
+            e("Two-Finger Pocket Hang", TIME_WEIGHT), e("Full Crimp Hang", TIME_WEIGHT),
+            e("Sloper Hang", TIME_WEIGHT, also = listOf(LATS)),
+            e("One-Arm Hang", TIME_WEIGHT, perSide = true, also = listOf(LATS)), e("Density Hang", TIME_WEIGHT),
+            e("Low-Intensity Finger Loading", INTERVALS, plan = intervals(high = 10, low = 20, rounds = 20)),
+            e("Wide Pinch Hold", TIME_WEIGHT, perSide = true), e("Isometric Finger Pull", TIME_WEIGHT, perSide = true),
+            e("Lumbrical Hold", TIME, perSide = true),
+        )
+        group(
+            FOREARMS, STRENGTH,
+            e("Gripper Squeeze", REPS, perSide = true), e("Putty Squeeze", REPS, perSide = true),
+            e("Thumb Band Abduction", REPS, perSide = true), e("Thumb Band Extension", REPS, perSide = true),
+            e("Radial Deviation Lift", perSide = true), e("Ulnar Deviation Lift", perSide = true),
+            e("Sledgehammer Levering", REPS, perSide = true),
+        )
+        group(FOREARMS, MOBILITY, e("Tendon Gliding", REPS, perSide = true))
+        group(
+            FOREARMS, STRETCHING,
+            e("Thumb Web Stretch", TIME, perSide = true), e("Lumbrical Stretch", TIME, perSide = true),
+        )
+
+        // The often forgotten parts: neck, feet and toes, the knee's last degrees, deep core and breath.
+        group(NECK, ISOMETRIC, e("Chin Tuck Hold", TIME), e("4-Way Neck Isometric", TIME))
+        group(NECK, STRENGTH, e("Lying Neck Flexion", REPS), e("Prone Neck Extension", REPS, also = listOf(UPPER_BACK)))
+        group(NECK, MOBILITY, e("Neck CARs", REPS))
+        group(NECK, STRETCHING, e("Upper Trap Stretch", TIME, perSide = true, also = listOf(UPPER_BACK)))
+        group(
+            FEET, STRENGTH,
+            e("Toe Yoga", REPS), e("Towel Scrunch", REPS, perSide = true), e("Toe Walk", TIME, also = listOf(CALVES)),
+            e("Heel Walk", TIME, also = listOf(SHINS)),
+        )
+        group(FEET, ISOMETRIC, e("Toe Spread Hold", TIME), e("Big Toe Press Hold", TIME, perSide = true))
+        group(FEET, STRETCHING, e("Big Toe Extension Stretch", TIME, perSide = true))
+        group(CALVES, MOBILITY, e("Ankle CARs", REPS, perSide = true, also = listOf(FEET)))
+        group(
+            QUADS, STRENGTH,
+            e("Terminal Knee Extension", REPS, perSide = true), e("Peterson Step-Up", REPS, perSide = true),
+            e("Lateral Step-Down", REPS, perSide = true, also = listOf(GLUTES)),
+        )
+        group(ADDUCTORS, MOBILITY, e("Adductor Rockback", REPS, perSide = true, also = listOf(HIPS)))
+        group(UPPER_BACK, STRENGTH, e("Serratus Foam Roller Wall Slide", REPS, also = listOf(ROTATOR_CUFF)))
+        group(BICEPS, ISOMETRIC, e("Isometric Supination Hold", TIME_WEIGHT, perSide = true, also = listOf(FOREARMS)))
+        group(OBLIQUES, STRENGTH, e("Suitcase Carry", TIME_WEIGHT, perSide = true, also = listOf(FOREARMS, LOWER_BACK)))
+        group(ABS, STRENGTH, e("McGill Curl-Up", REPS))
+        group(ABS, ISOMETRIC, e("Pelvic Floor Hold", TIME))
+        group(
+            MIND, MEDITATION,
+            e("Crocodile Breathing", TIME, also = listOf(ABS)), e("90/90 Breathing", TIME, also = listOf(ABS)),
+        )
         group(ABS, STRENGTH, e("Sit-Up"))
     }
 
