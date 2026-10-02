@@ -13,7 +13,8 @@ object BuiltInTendons {
             "Bulgarian Split Squat", "Chair Pose", "Box Jump", "Depth Jump", "Jump Squat", "Long-Lever Wall Sit",
             "Single-Leg Decline Squat", "Poliquin Step-Up", "Backward Sled Drag", "Heavy Slow Split Squat",
             "Sissy Squat", "Lateral Hop", "Split Step Jump", "Streamline Squat Jump", "Terminal Knee Extension",
-            "Peterson Step-Up", "Lateral Step-Down",
+            "Peterson Step-Up", "Lateral Step-Down", "Block Jump", "Shuffle Block Jump", "Drop Landing", "Hurdle Hops",
+            "Trap Bar Jump", "Dig Position Hold", "Spike Approach Drill",
         ),
         Tendon.QUADRICEPS to listOf(
             "Isometric Reverse Nordic Hold", "Reverse Nordic Curl", "Spanish Squat Hold", "Decline Board Squat",
@@ -27,7 +28,7 @@ object BuiltInTendons {
             "Ankle Dorsiflexion Rocks", "Seated Soleus Hold", "Smith Machine Calf Raise Hold",
             "Bent-Knee Eccentric Heel Drop", "Toe-Elevated Calf Raise", "Heel Raise with Ball Squeeze",
             "Heavy Slow Seated Calf Raise", "Lateral Hop", "Split Step Jump", "Kneeling Ankle Stretch", "Toe Walk",
-            "Ankle CARs",
+            "Ankle CARs", "Block Jump", "Hurdle Hops", "Drop Landing", "Fighter Footwork Drill", "Spike Approach Drill",
         ),
         Tendon.PLANTAR_FASCIA to listOf(
             "Slow Deficit Calf Raise", "Single-Leg Calf Raise Hold", "Standing Calf Raise", "Eccentric Heel Drop",
@@ -36,38 +37,43 @@ object BuiltInTendons {
         ),
         Tendon.PERONEAL to listOf(
             "Single-Leg Balance Hold", "Banded Ankle Eversion", "Lateral Shuffle", "Lateral Bound", "Skater Jump",
-            "Agility Ladder", "Single-Leg Landing Stick", "Lateral Hop", "Lateral Lunge Rock",
+            "Agility Ladder", "Single-Leg Landing Stick", "Lateral Hop", "Lateral Lunge Rock", "Star Excursion Balance",
+            "Shuffle Block Jump", "Block Footwork Drill",
         ),
         Tendon.TIBIALIS to listOf("Tibialis Raise", "Heel Walk"),
         Tendon.POSTERIOR_TIBIAL to listOf(
             "Heel Raise with Ball Squeeze", "Banded Ankle Inversion", "Short Foot Hold", "Single-Leg Balance Hold",
             "Bent-Knee Eccentric Heel Drop", "Lateral Hop", "Toe Yoga", "Towel Scrunch", "Big Toe Press Hold",
-            "Toe Walk",
+            "Toe Walk", "Star Excursion Balance",
         ),
         Tendon.HAMSTRING to listOf(
             "Eccentric Romanian Deadlift", "Single-Leg Glute Bridge", "Hamstring Walkout", "45-Degree Hyperextension",
             "Sprinting", "Hill Sprints", "Nordic Hamstring Curl", "Isometric Nordic Hold", "Hamstring Bridge Hold",
             "Slider Hamstring Curl", "Romanian Deadlift", "Single-Leg Romanian Deadlift", "Good Morning",
             "Long-Lever Bridge Hold", "Isometric Leg Curl Hold", "Razor Curl", "Eccentric Single-Leg Leg Curl",
+            "Front Split Stretch", "Front Leg Swing",
         ),
         Tendon.HIP_FLEXOR to listOf(
             "Psoas March", "Seated Knee Lift Hold", "A-Skip", "Sprinting", "Hip Flexor Stretch", "Couch Stretch",
             "Banded Hip Flexion Hold", "Toes to Bar", "Reverse Lunge to Knee Drive", "Flutter Kicks",
-            "High Step Hip Mobility",
+            "High Step Hip Mobility", "Kick Chamber Hold", "Cable Knee Drive", "Knee Strike Drill", "Front Leg Swing",
+            "Teep Kick Drill", "Slow Kick Extension",
         ),
         Tendon.ADDUCTOR to listOf(
             "Cossack Squat", "Lateral Lunge", "Side-Lying Adductor Raise", "Lateral Shuffle", "Copenhagen Plank",
             "Adductor Squeeze", "Adductor Machine", "Short-Lever Copenhagen Plank", "Isometric Adductor Ball Squeeze",
             "Sliding Lateral Lunge", "Hip Turnout Stretch", "Lateral Lunge Rock", "Adductor Rockback",
+            "Middle Split Stretch", "Lateral Leg Swing", "Roundhouse Kick Drill",
         ),
         Tendon.GLUTEAL to listOf(
             "Slow Single-Leg Pelvic Drop", "Side-Lying Clamshell Hold", "Clamshell", "Banded Lateral Walk",
             "Hip Airplane", "Single-Leg Glute Bridge", "Glute Bridge Hold", "Side Plank", "Standing Hip Abduction Hold",
-            "Side-Lying Hip Abduction Hold", "Hip Hike",
+            "Side-Lying Hip Abduction Hold", "Hip Hike", "Cable Hip Abduction", "Kick Chamber Hold",
+            "Fire Hydrant Circles", "Slow Kick Extension",
         ),
         Tendon.ILIOTIBIAL to listOf(
             "Side-Lying Hip Abduction Hold", "Standing Hip Abduction Hold", "Hip Hike", "Lateral Step-Down",
-            "Banded Lateral Walk", "Slow Single-Leg Pelvic Drop",
+            "Banded Lateral Walk", "Slow Single-Leg Pelvic Drop", "Cable Hip Abduction",
         ),
         Tendon.ROTATOR_CUFF to listOf(
             "Slow Cable External Rotation", "Slow High Cable External Rotation", "Slow High Cable Internal Rotation",
@@ -76,7 +82,8 @@ object BuiltInTendons {
             "Eccentric External Rotation", "Shoulder CARs", "Face Pull", "Doorway External Rotation Hold",
             "Doorway Internal Rotation Hold", "Bottoms-Up Kettlebell Carry", "Full Can Raise",
             "Prone Horizontal Abduction", "Cable Internal Rotation", "Reverse Ball Catch", "Push Up Plus",
-            "Prone Swimmer Lift", "Banded Swim Pull", "Serratus Foam Roller Wall Slide",
+            "Prone Swimmer Lift", "Banded Swim Pull", "Serratus Foam Roller Wall Slide", "90/90 Ball Drop",
+            "Overhead Ball Wall Dribble", "Banded Spike Swing", "Prone 90/90 External Rotation", "Serving Practice",
         ),
         Tendon.BICEPS to listOf(
             "Lock-Off Hold", "Eccentric Barbell Curl", "Isometric Curl Hold", "Incline Dumbbell Curl",
@@ -94,7 +101,8 @@ object BuiltInTendons {
         ),
         Tendon.TRICEPS to listOf(
             "Overhead Cable Triceps Extension", "Eccentric Dip", "Parallel Bar Triceps Dip", "EZ-Bar Skullcrusher",
-            "Isometric Triceps Pushdown Hold", "Eccentric Triceps Pushdown",
+            "Isometric Triceps Pushdown Hold", "Eccentric Triceps Pushdown", "Medicine Ball Chest Pass",
+            "Landmine Punch",
         ),
         Tendon.THUMB to listOf(
             "Thumb Band Abduction", "Thumb Band Extension", "Radial Deviation Lift", "Wide Pinch Hold",

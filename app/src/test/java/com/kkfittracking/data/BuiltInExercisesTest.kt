@@ -97,7 +97,7 @@ class BuiltInExercisesTest {
     }
 
     @Test
-    fun climbingTennisAndSwimmingHaveStrengthAndMobilityPlans() {
+    fun sportsHaveStrengthAndMobilityPlans() {
         val names = StarterPlans.plans.map { it.name }.toSet()
         listOf("Climbing", "Tennis").forEach { sport ->
             assertTrue("$sport strength" in names)
@@ -105,6 +105,11 @@ class BuiltInExercisesTest {
         }
         assertTrue("Swim dryland" in names)
         assertTrue("Swim mobility" in names)
+        listOf("Kickboxing skills", "Kickboxing strength", "Kickboxing mobility", "Volleyball skills", "Volleyball prehab")
+            .forEach { assertTrue(it, it in names) }
+        // Landing from block jumps again and again is what wears the patellar tendon in volleyball.
+        val block = BuiltInExercises.exercises.single { it.name == "Block Jump" }
+        assertTrue(Tendon.PATELLAR in BuiltInTendons.of(block.id))
         val holds = StarterPlans.plans.single { it.name == "Tendon isometrics" }
         assertEquals(holds.exercises.toSet(), holds.setPlans.keys)
     }

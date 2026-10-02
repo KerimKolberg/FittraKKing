@@ -814,6 +814,71 @@ object BuiltInExercises {
             MIND, MEDITATION,
             e("Crocodile Breathing", TIME, also = listOf(ABS)), e("90/90 Breathing", TIME, also = listOf(ABS)),
         )
+
+        // Kickboxing: kicks and knees from strong, mobile hips, punches from the ground up, a guard that lasts.
+        group(
+            Muscle.SPORT, SPORT,
+            e("Pad Work Rounds", INTERVALS, plan = intervals(high = 180, low = 60, rounds = 5)),
+            e("Roundhouse Kick Drill", REPS, perSide = true), e("Teep Kick Drill", REPS, perSide = true),
+            e("Switch Kick Drill", REPS, perSide = true), e("Knee Strike Drill", REPS, perSide = true),
+            e("Slip and Roll Drill", TIME), e("Fighter Footwork Drill", TIME),
+        )
+        group(FULL_BODY, HIIT, e("Sprawl", REPS), e("Bob and Weave", TIME, also = listOf(QUADS)))
+        group(HIPS, ISOMETRIC, e("Kick Chamber Hold", TIME, perSide = true, also = listOf(GLUTES)))
+        group(
+            HIPS, STRENGTH,
+            e("Slow Kick Extension", REPS, tempo = "3-1-3-0", perSide = true, also = listOf(QUADS, GLUTES)),
+            e("Cable Knee Drive", perSide = true, also = listOf(ABS)),
+            e("Cable Hip Abduction", perSide = true, also = listOf(GLUTES)),
+        )
+        group(
+            HIPS, MOBILITY,
+            e("Front Leg Swing", REPS, perSide = true, also = listOf(HAMSTRINGS)),
+            e("Lateral Leg Swing", REPS, perSide = true, also = listOf(ADDUCTORS)),
+            e("Fire Hydrant Circles", REPS, perSide = true, also = listOf(GLUTES)),
+        )
+        group(
+            HIPS, STRETCHING,
+            e("Front Split Stretch", TIME, perSide = true, also = listOf(HAMSTRINGS)),
+            e("Middle Split Stretch", TIME, also = listOf(ADDUCTORS)),
+        )
+        group(
+            FRONT_DELTS, STRENGTH,
+            e("Landmine Punch", perSide = true, also = listOf(CHEST, TRICEPS, OBLIQUES)),
+            e("Band Resisted Punch", REPS, perSide = true, also = listOf(CHEST)),
+            e("Cable Rotational Punch", perSide = true, also = listOf(OBLIQUES)),
+        )
+        group(FRONT_DELTS, ISOMETRIC, e("Guard Hold", TIME_WEIGHT, also = listOf(SIDE_DELTS)))
+        group(FRONT_DELTS, HIIT, e("Dumbbell Shadow Boxing", TIME, also = listOf(SIDE_DELTS)))
+        group(CHEST, PLYOMETRIC, e("Medicine Ball Chest Pass", REPS, also = listOf(TRICEPS)))
+        group(ABS, STRENGTH, e("Sit-Up Punch", REPS, also = listOf(OBLIQUES)))
+
+        // Volleyball: jumping and landing again and again, a fast spiking shoulder, and quick low defence.
+        group(
+            Muscle.SPORT, SPORT,
+            e("Spike Approach Drill", REPS), e("Block Footwork Drill", TIME), e("Passing Drill", TIME),
+            e("Serving Practice", REPS),
+        )
+        group(
+            WHOLE_LEGS, PLYOMETRIC,
+            e("Block Jump", REPS, also = listOf(CALVES, FRONT_DELTS)),
+            e("Shuffle Block Jump", REPS, also = listOf(CALVES, ADDUCTORS)),
+            e("Drop Landing", REPS, also = listOf(GLUTES)), e("Hurdle Hops", REPS, also = listOf(CALVES)),
+            e("Trap Bar Jump", also = listOf(GLUTES, CALVES)),
+        )
+        group(WHOLE_LEGS, STRENGTH, e("Star Excursion Balance", REPS, perSide = true, also = listOf(CALVES, GLUTES)))
+        group(QUADS, ISOMETRIC, e("Dig Position Hold", TIME, also = listOf(GLUTES, ADDUCTORS)))
+        group(FULL_BODY, HIIT, e("Defensive Dive Get-Up", REPS))
+        group(
+            ROTATOR_CUFF, PLYOMETRIC,
+            e("90/90 Ball Drop", REPS, perSide = true), e("Overhead Ball Wall Dribble", TIME, perSide = true),
+        )
+        group(
+            ROTATOR_CUFF, STRENGTH,
+            e("Banded Spike Swing", REPS, perSide = true, also = listOf(LATS)),
+            e("Prone 90/90 External Rotation", perSide = true, also = listOf(REAR_DELTS)),
+        )
+        group(OBLIQUES, PLYOMETRIC, e("Medicine Ball Spike Throw", REPS, also = listOf(LATS, ABS)))
         group(ABS, STRENGTH, e("Sit-Up"))
     }
 
