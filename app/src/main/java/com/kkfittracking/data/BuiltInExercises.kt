@@ -623,6 +623,138 @@ object BuiltInExercises {
         group(TRICEPS, STRENGTH, e("Overhead Cable Triceps Extension"))
         // A lateral raise that keeps going overhead: more range of motion under the weight.
         group(SIDE_DELTS, STRENGTH, e("Lu Raise", also = listOf(FRONT_DELTS, UPPER_BACK)))
+
+        // Tendon training (version 0.6): isometrics to calm a sore tendon, then heavy slow and
+        // eccentric work to rebuild it, for every tendon in the library.
+        group(QUADS, ISOMETRIC, e("Long-Lever Wall Sit", TIME_WEIGHT, also = listOf(GLUTES)))
+        group(
+            QUADS, ECCENTRIC,
+            e("Single-Leg Decline Squat", REPS, tempo = "3-0-1-0", perSide = true),
+            e("Poliquin Step-Up", tempo = "2-0-1-0", perSide = true),
+            e("Backward Sled Drag", TIME_WEIGHT, also = listOf(CALVES)),
+            e("Heavy Slow Split Squat", tempo = "3-0-3-0", perSide = true, also = listOf(GLUTES)),
+        )
+        group(
+            CALVES, ISOMETRIC,
+            e("Seated Soleus Hold", TIME_WEIGHT, perSide = true), e("Smith Machine Calf Raise Hold", TIME_WEIGHT),
+        )
+        group(
+            CALVES, ECCENTRIC,
+            e("Bent-Knee Eccentric Heel Drop", tempo = "3-0-1-0", perSide = true),
+            e("Toe-Elevated Calf Raise", tempo = "3-2-3-0", perSide = true),
+            e("Heel Raise with Ball Squeeze", REPS, tempo = "3-1-1-0"),
+            e("Heavy Slow Seated Calf Raise", tempo = "3-0-3-0"),
+        )
+        group(SHINS, STRENGTH, e("Banded Ankle Inversion", REPS, perSide = true), e("Short Foot Hold", TIME))
+        group(
+            HAMSTRINGS, ISOMETRIC,
+            e("Long-Lever Bridge Hold", TIME, perSide = true, also = listOf(GLUTES)),
+            e("Isometric Leg Curl Hold", TIME_WEIGHT),
+        )
+        group(
+            HAMSTRINGS, ECCENTRIC,
+            e("Razor Curl", REPS, tempo = "4-0-1-0", also = listOf(GLUTES)),
+            e("Eccentric Single-Leg Leg Curl", tempo = "4-0-1-0", perSide = true),
+        )
+        group(
+            ADDUCTORS, ISOMETRIC,
+            e("Short-Lever Copenhagen Plank", TIME, perSide = true, also = listOf(OBLIQUES)),
+            e("Isometric Adductor Ball Squeeze", TIME),
+        )
+        group(ADDUCTORS, ECCENTRIC, e("Sliding Lateral Lunge", tempo = "3-0-1-0", perSide = true, also = listOf(QUADS)))
+        group(
+            GLUTES, ISOMETRIC,
+            e("Standing Hip Abduction Hold", TIME, perSide = true, also = listOf(HIPS)),
+            e("Side-Lying Hip Abduction Hold", TIME, perSide = true, also = listOf(HIPS)),
+        )
+        group(GLUTES, STRENGTH, e("Hip Hike", REPS, perSide = true, also = listOf(HIPS)))
+        group(HIPS, ISOMETRIC, e("Banded Hip Flexion Hold", TIME, perSide = true))
+        group(
+            ROTATOR_CUFF, ISOMETRIC,
+            e("Doorway External Rotation Hold", TIME, perSide = true),
+            e("Doorway Internal Rotation Hold", TIME, perSide = true),
+            e("Bottoms-Up Kettlebell Carry", TIME_WEIGHT, perSide = true, also = listOf(FOREARMS)),
+        )
+        group(
+            ROTATOR_CUFF, STRENGTH,
+            e("Full Can Raise", also = listOf(SIDE_DELTS)), e("Prone Horizontal Abduction", also = listOf(REAR_DELTS)),
+            e("Cable Internal Rotation", perSide = true),
+        )
+        group(BICEPS, ECCENTRIC, e("Eccentric Hammer Curl", tempo = "4-0-1-0", also = listOf(FOREARMS)))
+        group(
+            FOREARMS, ISOMETRIC,
+            e("Isometric Wrist Extension Hold", TIME_WEIGHT, perSide = true),
+            e("Isometric Wrist Flexion Hold", TIME_WEIGHT, perSide = true),
+            e("Isometric Pronation Hold", TIME_WEIGHT, perSide = true),
+        )
+        group(TRICEPS, ISOMETRIC, e("Isometric Triceps Pushdown Hold", TIME_WEIGHT))
+        group(TRICEPS, ECCENTRIC, e("Eccentric Triceps Pushdown", tempo = "4-0-1-0"))
+
+        // Climbing: fingers, pulling strength, and the hips and shoulders to reach.
+        group(FOREARMS, STRENGTH, e("Barbell Finger Curl"), e("Pinch Block Lift", TIME_WEIGHT, perSide = true))
+        group(
+            FOREARMS, ISOMETRIC,
+            e("Hangboard Repeaters", INTERVALS, plan = intervals(high = 7, low = 3, rounds = 6), also = listOf(LATS)),
+        )
+        group(
+            LATS, STRENGTH,
+            e("Weighted Pull Up", also = listOf(BICEPS)), e("Archer Pull Up", REPS, also = listOf(BICEPS)),
+            e("Typewriter Pull Up", REPS, also = listOf(BICEPS)),
+            e("Offset Pull Up", REPS, perSide = true, also = listOf(BICEPS)),
+        )
+        group(
+            ABS, STRENGTH,
+            e("Toes to Bar", REPS, also = listOf(HIPS, LATS)), e("Front Lever Raise", REPS, also = listOf(LATS)),
+        )
+        group(CHEST, STRENGTH, e("Push Up Plus", REPS, also = listOf(FRONT_DELTS)))
+        group(
+            HIPS, MOBILITY,
+            e("High Step Hip Mobility", REPS, perSide = true, also = listOf(GLUTES)),
+            e("Hip Turnout Stretch", TIME, also = listOf(ADDUCTORS), alsoStyles = listOf(STRETCHING)),
+            e("Drop Knee Rotation", REPS, perSide = true),
+        )
+        group(
+            FOREARMS, STRETCHING,
+            e("Forearm Extensor Stretch", TIME, perSide = true), e("Finger Flexor Stretch", TIME),
+        )
+        group(ROTATOR_CUFF, STRETCHING, e("Overhead Shoulder Flexion Stretch", TIME, also = listOf(LATS)))
+
+        // Tennis: rotation, lateral movement, and a resilient serving shoulder and elbow.
+        group(UPPER_BACK, MOBILITY, e("Open Book Rotation", REPS, perSide = true, also = listOf(CHEST)))
+        group(
+            HIPS, MOBILITY,
+            e("Hip Internal Rotation Lift-Off", REPS, perSide = true),
+            e("Lateral Lunge Rock", REPS, also = listOf(ADDUCTORS)),
+        )
+        group(
+            WHOLE_LEGS, PLYOMETRIC,
+            e("Lateral Hop", REPS, perSide = true, also = listOf(CALVES)),
+            e("Split Step Jump", REPS, also = listOf(CALVES)),
+        )
+        group(
+            OBLIQUES, PLYOMETRIC,
+            e("Medicine Ball Side Throw", REPS, perSide = true, also = listOf(FULL_BODY)),
+            e("Medicine Ball Shot Put", REPS, perSide = true, also = listOf(CHEST)),
+        )
+        group(OBLIQUES, STRENGTH, e("Pallof Press", REPS, perSide = true, also = listOf(ABS)))
+        group(QUADS, STRENGTH, e("Reverse Lunge to Knee Drive", perSide = true, also = listOf(GLUTES, HIPS)))
+        group(ROTATOR_CUFF, PLYOMETRIC, e("Reverse Ball Catch", REPS, perSide = true))
+
+        // Swimming: an overhead shoulder with a stable blade, a strong kick and pull, and loose ankles.
+        group(
+            UPPER_BACK, MOBILITY,
+            e("Thoracic Extension on Foam Roller", REPS, also = listOf(LATS)),
+            e("Streamline Stretch", TIME, also = listOf(LATS)),
+        )
+        group(CALVES, STRETCHING, e("Kneeling Ankle Stretch", TIME, also = listOf(SHINS)))
+        group(CHEST, STRETCHING, e("Pec Minor Stretch", TIME, perSide = true))
+        group(
+            LATS, STRENGTH,
+            e("Banded Swim Pull", REPS, also = listOf(TRICEPS)),
+            e("Prone Swimmer Lift", REPS, also = listOf(UPPER_BACK, LOWER_BACK)),
+        )
+        group(ABS, STRENGTH, e("Flutter Kicks", TIME, also = listOf(HIPS)))
+        group(QUADS, PLYOMETRIC, e("Streamline Squat Jump", REPS, also = listOf(GLUTES, CALVES)))
         group(ABS, STRENGTH, e("Sit-Up"))
     }
 

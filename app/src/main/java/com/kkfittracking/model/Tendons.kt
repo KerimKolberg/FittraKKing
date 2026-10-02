@@ -38,6 +38,12 @@ enum class Tendon(val label: String, val area: TendonArea, val connects: String,
         "They keep the ankle from rolling over when you land or cut sideways: the tendons behind most ankle " +
             "sprains in tennis, volleyball and basketball. Balance holds and banded eversion make them stronger.",
     ),
+    POSTERIOR_TIBIAL(
+        "Posterior tibial tendon", TendonArea.ANKLE,
+        "a deep calf muscle, behind the inner ankle bone, to the underside of the midfoot",
+        "Holds up the arch of the foot: pain along the inner ankle and a flattening arch are its warning signs. " +
+            "Calf raises squeezing a ball between the heels, banded inversion and short-foot holds load it.",
+    ),
     TIBIALIS(
         "Tibialis anterior tendon", TendonArea.ANKLE,
         "the shin muscle to the inner midfoot",

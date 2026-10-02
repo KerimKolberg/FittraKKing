@@ -18,6 +18,9 @@ object StarterPlans {
 
     private fun sets(reps: Int? = null, kg: Double? = null) = ExercisePlan(sets = 3, reps = reps, weightKg = kg)
 
+    /** Tendon holds: five sets of about 45 seconds, the usual dose to calm a sore tendon. */
+    private fun holds(vararg names: String) = names.associateWith { ExercisePlan(sets = 5) }
+
     /** A plan in blocks: each block is a superset of [rounds] rounds (a block of one is a normal exercise). */
     private fun blocks(name: String, rounds: Int, vararg blocks: List<Pair<String, ExercisePlan>>) = StarterPlan(
         name = name,
@@ -193,6 +196,124 @@ object StarterPlans {
                 "Thoracic Rotation",
                 "Ankle Dorsiflexion Rocks",
                 "Deep Squat Hold",
+            ),
+        ),
+        // Tendon training: holds first when a tendon is sore, then heavy slow and eccentric work.
+        StarterPlan(
+            "Tendon isometrics",
+            listOf(
+                "Spanish Squat Hold",
+                "Long-Lever Wall Sit",
+                "Seated Soleus Hold",
+                "Long-Lever Bridge Hold",
+                "Isometric Adductor Ball Squeeze",
+                "Side-Lying Hip Abduction Hold",
+                "Doorway External Rotation Hold",
+                "Isometric Wrist Extension Hold",
+                "Isometric Triceps Pushdown Hold",
+            ),
+            setPlans = holds(
+                "Spanish Squat Hold", "Long-Lever Wall Sit", "Seated Soleus Hold", "Long-Lever Bridge Hold",
+                "Isometric Adductor Ball Squeeze", "Side-Lying Hip Abduction Hold", "Doorway External Rotation Hold",
+                "Isometric Wrist Extension Hold", "Isometric Triceps Pushdown Hold",
+            ),
+        ),
+        StarterPlan(
+            "Tendon heavy slow",
+            listOf(
+                "Heavy Slow Split Squat",
+                "Heavy Slow Seated Calf Raise",
+                "Bent-Knee Eccentric Heel Drop",
+                "Heel Raise with Ball Squeeze",
+                "Razor Curl",
+                "Sliding Lateral Lunge",
+                "Full Can Raise",
+                "Eccentric Hammer Curl",
+                "Eccentric Triceps Pushdown",
+            ),
+            supersets = listOf(listOf("Heavy Slow Seated Calf Raise", "Full Can Raise"), listOf("Eccentric Hammer Curl", "Eccentric Triceps Pushdown")),
+        ),
+        // Climbing, tennis and swimming: strength and mobility for each.
+        StarterPlan(
+            "Climbing strength",
+            listOf(
+                "Hangboard Repeaters",
+                "Weighted Pull Up",
+                "Offset Pull Up",
+                "Front Lever Raise",
+                "Pinch Block Lift",
+                "Barbell Finger Curl",
+                "Push Up Plus",
+                "Toes to Bar",
+                "Reverse Tyler Twist",
+            ),
+            supersets = listOf(listOf("Front Lever Raise", "Push Up Plus"), listOf("Barbell Finger Curl", "Reverse Tyler Twist")),
+        ),
+        StarterPlan(
+            "Climbing mobility",
+            listOf(
+                "High Step Hip Mobility",
+                "Hip Turnout Stretch",
+                "Drop Knee Rotation",
+                "Cossack Squat",
+                "Thoracic Extension on Foam Roller",
+                "Overhead Shoulder Flexion Stretch",
+                "Forearm Extensor Stretch",
+                "Finger Flexor Stretch",
+            ),
+        ),
+        StarterPlan(
+            "Tennis strength",
+            listOf(
+                "Split Step Jump",
+                "Lateral Hop",
+                "Medicine Ball Side Throw",
+                "Medicine Ball Shot Put",
+                "Reverse Lunge to Knee Drive",
+                "Single-Leg Romanian Deadlift",
+                "Pallof Press",
+                "Full Can Raise",
+                "Reverse Ball Catch",
+                "Tyler Twist",
+            ),
+            supersets = listOf(listOf("Reverse Lunge to Knee Drive", "Pallof Press"), listOf("Full Can Raise", "Tyler Twist")),
+        ),
+        StarterPlan(
+            "Tennis mobility",
+            listOf(
+                "Open Book Rotation",
+                "Hip Internal Rotation Lift-Off",
+                "Lateral Lunge Rock",
+                "World's Greatest Stretch",
+                "Sleeper Stretch",
+                "Forearm Extensor Stretch",
+                "Ankle Dorsiflexion Rocks",
+            ),
+        ),
+        StarterPlan(
+            "Swim dryland",
+            listOf(
+                "Pull Up",
+                "Banded Swim Pull",
+                "Prone Swimmer Lift",
+                "Push Up Plus",
+                "Prone Horizontal Abduction",
+                "Doorway External Rotation Hold",
+                "Flutter Kicks",
+                "Streamline Squat Jump",
+            ),
+            supersets = listOf(listOf("Banded Swim Pull", "Flutter Kicks"), listOf("Prone Horizontal Abduction", "Doorway External Rotation Hold")),
+        ),
+        StarterPlan(
+            "Swim mobility",
+            listOf(
+                "Streamline Stretch",
+                "Thoracic Extension on Foam Roller",
+                "Pec Minor Stretch",
+                "Sleeper Stretch",
+                "Wall Slide",
+                "Open Book Rotation",
+                "Kneeling Ankle Stretch",
             ),
         ),
     )

@@ -75,6 +75,12 @@ private class Sketch(val scope: DrawScope, val u: Float, val bone: Color, val mu
                 tendon(9f, 11f, 9.4f, 17.5f)
                 tendon(9.4f, 17.5f, 12.5f, 19.4f)
             }
+            Tendon.POSTERIOR_TIBIAL -> {
+                // Seen from the inside: behind the inner ankle bone and under the arch.
+                line(muscle, 9.2f, 4f, 9.2f, 11f, 2.2f)
+                tendon(9.2f, 11f, 9.2f, 17f)
+                tendon(9.2f, 17f, 13.5f, 21.2f)
+            }
             else -> {
                 line(muscle, 12.5f, 3f, 12.5f, 11f, 2.4f)
                 tendon(12.6f, 11f, 13.8f, 18f)

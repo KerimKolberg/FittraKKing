@@ -20,7 +20,7 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 - **HIIT** (under Cardio): an interval timer for high and low intensity with rounds, a get-ready countdown, beeps and vibration
 - **Drop sets**: planned per exercise, on the last set or as the whole exercise, with the number of drops, reps per drop and a percentage or fixed weight; or tap "Drop set" any time
 - **Supersets**: group 2 to 12 exercises and log them round by round. "Superset edit" arranges a day or a plan by dragging, with the time to walk to the next exercise and the rest after each round; plans can bring their supersets along. Set the rounds of a superset, a drop set on the last round for all, and per exercise how many rounds it joins or its own drop set choice
-- **Tendons**: isometric and eccentric exercises show the tendons they train (patellar, Achilles, rotator cuff, elbow tendons…) with a drawing and what each one connects; filter by tendon in the library
+- **Tendons**: isometric and eccentric exercises show the tendons they train (patellar, Achilles, rotator cuff, elbow tendons…) with a drawing and what each one connects; filter by tendon in the library. Tendon isometrics and Tendon heavy slow starter plans; strength and mobility plans for climbing, tennis and swimming
 - **Watch app** (Wear OS): follow the guided workout on the wrist and log sets there, synced with the phone
 - **Workouts to Health Connect**: finished workouts show up in Samsung Health and Google Fit (gym work as strength training, runs, rides and sports as their own workouts), with an estimated calorie count if you like
 - **Calories**: an estimate for each day from MET values and your bodyweight (±20–30 %), or what the watch measured when it recorded the activity

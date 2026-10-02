@@ -83,6 +83,22 @@ class BuiltInExercisesTest {
         // Every tendon has exercises for it.
         val covered = BuiltInExercises.exercises.flatMap { BuiltInTendons.of(it.id) }.toSet()
         assertEquals(Tendon.entries.toSet(), covered)
+        // The ball between the heels turns a calf raise into arch work for the posterior tibial tendon.
+        val ballSqueeze = BuiltInExercises.exercises.single { it.name == "Heel Raise with Ball Squeeze" }
+        assertTrue(Tendon.POSTERIOR_TIBIAL in BuiltInTendons.of(ballSqueeze.id))
+    }
+
+    @Test
+    fun climbingTennisAndSwimmingHaveStrengthAndMobilityPlans() {
+        val names = StarterPlans.plans.map { it.name }.toSet()
+        listOf("Climbing", "Tennis").forEach { sport ->
+            assertTrue("$sport strength" in names)
+            assertTrue("$sport mobility" in names)
+        }
+        assertTrue("Swim dryland" in names)
+        assertTrue("Swim mobility" in names)
+        val holds = StarterPlans.plans.single { it.name == "Tendon isometrics" }
+        assertEquals(holds.exercises.toSet(), holds.setPlans.keys)
     }
 
     @Test
