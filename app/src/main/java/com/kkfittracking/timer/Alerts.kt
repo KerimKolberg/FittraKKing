@@ -1,8 +1,5 @@
 package com.kkfittracking.timer
 
-import com.kkfittracking.RequestCodes
-import com.kkfittracking.openAppIntent
-import com.kkfittracking.canPostNotifications
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -15,6 +12,9 @@ import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kkfittracking.R
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.canPostNotifications
+import com.kkfittracking.openAppIntent
 
 /** Vibrations, beeps and notifications shared by the timers. */
 class Alerts(private val context: Context) {

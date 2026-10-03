@@ -1,7 +1,5 @@
 package com.kkfittracking.guide
 
-import com.kkfittracking.RequestCodes
-import com.kkfittracking.openAppIntent
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -17,6 +15,8 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.kkfittracking.FitnessApplication
 import com.kkfittracking.R
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.openAppIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

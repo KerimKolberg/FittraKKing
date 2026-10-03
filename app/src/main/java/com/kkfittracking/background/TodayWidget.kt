@@ -1,7 +1,5 @@
 package com.kkfittracking.background
 
-import com.kkfittracking.RequestCodes
-import com.kkfittracking.openAppIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -11,8 +9,10 @@ import android.widget.RemoteViews
 import com.kkfittracking.FitnessApplication
 import com.kkfittracking.MainActivity
 import com.kkfittracking.R
+import com.kkfittracking.RequestCodes
 import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.dayCompletion
+import com.kkfittracking.openAppIntent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate

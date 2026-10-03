@@ -9,13 +9,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kkfittracking.ui.analysis.AnalysisScreen
-import com.kkfittracking.ui.load.LoadScreen
 import com.kkfittracking.ui.body.BodyMetricScreen
 import com.kkfittracking.ui.body.BodyScreen
 import com.kkfittracking.ui.calendar.CalendarScreen
 import com.kkfittracking.ui.exercises.EditExerciseScreen
 import com.kkfittracking.ui.exercises.ExercisePickerScreen
 import com.kkfittracking.ui.game.AchievementsScreen
+import com.kkfittracking.ui.load.LoadScreen
 import com.kkfittracking.ui.log.ExerciseLogScreen
 import com.kkfittracking.ui.routines.RoutineScreen
 import com.kkfittracking.ui.routines.RoutinesScreen
