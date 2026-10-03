@@ -7,8 +7,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.kkfittracking.data.BodyRepository
 import com.kkfittracking.data.ExerciseRepository
+import com.kkfittracking.data.PainRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.WorkoutRepository
+import com.kkfittracking.model.PainMoment
+import com.kkfittracking.model.Tendon
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -146,6 +149,19 @@ class MigrationTest {
         assertFalse(set.isDropSet)
         assertNull(logged.supersetId)
         assertEquals("5-0-1-0", ExerciseRepository(db.exerciseDao()).getExercise("e")!!.tempo)
+    }
+
+    @Test
+    fun fromVersion8() = runTest {
+        createOldDatabase(8) { seedVersion1Rows() }
+        val db = openCurrent()
+
+        // The workouts stay, and the new tendon pain log starts empty and takes ratings.
+        assertEquals(1, WorkoutRepository(db).observeDay(day).first().single().sets.size)
+        val pain = PainRepository(db.painDao())
+        assertTrue(pain.entries.first().isEmpty())
+        pain.rate(Tendon.PATELLAR, day, PainMoment.AFTER, 3)
+        assertEquals(3, pain.entries.first().single().score)
     }
 
     @Test

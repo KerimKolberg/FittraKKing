@@ -69,12 +69,15 @@ import androidx.health.connect.client.PermissionController
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kkfittracking.data.SportWarmUps
 import com.kkfittracking.data.health.HealthConnect
 import com.kkfittracking.model.Block
 import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.DayWorkouts
 import com.kkfittracking.model.GameStats
+import com.kkfittracking.model.PainMoment
 import com.kkfittracking.model.Routine
+import com.kkfittracking.model.Tendon
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.dayCompletion
 import com.kkfittracking.model.formatNumber
@@ -87,6 +90,7 @@ import com.kkfittracking.ui.components.rememberNotificationPermissionRequester
 import com.kkfittracking.ui.guide.DayCompletionCard
 import com.kkfittracking.ui.guide.GuideBar
 import com.kkfittracking.ui.guide.MoveRestDialog
+import com.kkfittracking.ui.log.PainRatingDialog
 import java.time.LocalDate
 
 @Composable
@@ -99,6 +103,7 @@ fun WorkoutScreen(
     onOpenBody: () -> Unit,
     onOpenAchievements: () -> Unit,
     onOpenAnalysis: () -> Unit,
+    onOpenLoad: () -> Unit,
     onNewSuperset: (LocalDate) -> Unit,
     onSupersets: (LocalDate) -> Unit,
     viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory),
@@ -126,6 +131,9 @@ fun WorkoutScreen(
     var selection by remember(state.date) { mutableStateOf<Set<String>?>(null) }
     var confirmRemoveSelected by remember { mutableStateOf(false) }
     var movingRest by remember { mutableStateOf(false) }
+    val morningTendons by viewModel.morningTendons.collectAsStateWithLifecycle()
+    var ratingMorning by remember { mutableStateOf(false) }
+    var choosingWarmUp by remember { mutableStateOf(false) }
     val toggle = { exercise: DayExercise ->
         selection = selection?.let { if (exercise.workoutExerciseId in it) it - exercise.workoutExerciseId else it + exercise.workoutExerciseId }
     }
@@ -173,6 +181,7 @@ fun WorkoutScreen(
                                 val close = { menuOpen = false }
                                 MenuItem("Add a plan to this day", close) { choosingRoutine = true }
                                 MenuItem("New superset", close) { onNewSuperset(state.date) }
+                                MenuItem("Warm up for a sport…", close) { choosingWarmUp = true }
                                 if (state.exercises.size >= 2) {
                                     MenuItem("Superset edit", close) { onSupersets(state.date) }
                                 }
@@ -193,6 +202,7 @@ fun WorkoutScreen(
                                 HorizontalDivider()
                                 MenuItem("Plans", close, onOpenRoutines)
                                 MenuItem("Graphs & records", close, onOpenAnalysis)
+                                MenuItem("Training load & tendons", close, onOpenLoad)
                                 MenuItem("Body tracker", close, onOpenBody)
                                 MenuItem("Progress & achievements", close, onOpenAchievements)
                                 MenuItem("Settings", close, onOpenSettings)
@@ -234,12 +244,16 @@ fun WorkoutScreen(
                     runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, uri).setPackage("com.android.vending")) }
                 },
             )
+            if (morningTendons.isNotEmpty() && state.date == LocalDate.now()) {
+                MorningTendonCard(morningTendons, onRate = { ratingMorning = true }, onOpenLoad = onOpenLoad)
+            }
             HorizontalDivider()
             when {
                 state.isLoading -> Unit
                 state.exercises.isEmpty() -> EmptyDay(
                     onAddExercise = { onAddExercise(state.date) },
                     onUseRoutine = { choosingRoutine = true },
+                    onWarmUp = { choosingWarmUp = true },
                 )
                 else -> LazyColumn(
                     contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 96.dp),
@@ -292,6 +306,7 @@ fun WorkoutScreen(
                                         Text("Superset edit")
                                     }
                                 }
+                                OutlinedButton(onClick = { choosingWarmUp = true }) { Text("Warm-up") }
                                 OutlinedButton(onClick = { selection = emptySet() }) { Text("Select") }
                             }
                         }
@@ -377,6 +392,45 @@ fun WorkoutScreen(
                     },
                 ) { Text("One by one") }
             },
+        )
+    }
+
+    if (choosingWarmUp) {
+        AlertDialog(
+            onDismissRequest = { choosingWarmUp = false },
+            title = { Text("Warm up for…") },
+            text = {
+                Column {
+                    Text(
+                        "5–8 minutes at the top of the day, then the guided workout starts with it.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    SportWarmUps.all.forEach { warmUp ->
+                        TextButton(
+                            onClick = {
+                                choosingWarmUp = false
+                                requestNotificationPermission()
+                                viewModel.startWarmUp(warmUp)
+                            },
+                        ) { Text("${warmUp.sport} · ${warmUp.exercises.size} exercises") }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { choosingWarmUp = false }) { Text("Cancel") } },
+        )
+    }
+
+    if (ratingMorning && morningTendons.isNotEmpty()) {
+        PainRatingDialog(
+            tendons = morningTendons,
+            initialMoment = PainMoment.MORNING,
+            onSave = { tendons, moment, score ->
+                ratingMorning = false
+                viewModel.ratePain(tendons, moment, score)
+            },
+            onDismiss = { ratingMorning = false },
         )
     }
 
@@ -513,7 +567,7 @@ private fun DateSwitcher(
 }
 
 @Composable
-private fun EmptyDay(onAddExercise: () -> Unit, onUseRoutine: () -> Unit) {
+private fun EmptyDay(onAddExercise: () -> Unit, onUseRoutine: () -> Unit, onWarmUp: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -538,6 +592,10 @@ private fun EmptyDay(onAddExercise: () -> Unit, onUseRoutine: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onUseRoutine) {
             Text("Use a plan")
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onWarmUp) {
+            Text("Warm up for a sport")
         }
     }
 }
@@ -761,5 +819,26 @@ private fun GameSummaryBar(stats: GameStats, onClick: () -> Unit) {
             progress = { stats.xpIntoLevel.toFloat() / stats.xpForLevel },
             modifier = Modifier.fillMaxWidth(),
         )
+    }
+}
+
+/** "How do your tendons feel this morning?" after a session with pain ratings. */
+@Composable
+private fun MorningTendonCard(tendons: List<Tendon>, onRate: () -> Unit, onOpenLoad: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Morning tendon check", style = MaterialTheme.typography.titleSmall)
+            Text(
+                "How do they feel after yesterday? " + tendons.joinToString(", ") { it.label },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onRate) { Text("Rate now") }
+                TextButton(onClick = onOpenLoad) { Text("Tendon overview") }
+            }
+        }
     }
 }

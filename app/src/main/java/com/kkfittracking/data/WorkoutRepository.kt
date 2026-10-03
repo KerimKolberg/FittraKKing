@@ -115,6 +115,25 @@ class WorkoutRepository(
         addPlannedExercises(date, exerciseIds.map { PlannedExercise(it) }, withSupersets = false)
 
     /**
+     * Puts a warm-up at the top of a day: its exercises come before the ones already there, in
+     * order. Exercises already on the day stay where they are.
+     */
+    suspend fun addWarmUp(date: LocalDate, exerciseIds: List<String>) = database.withTransaction {
+        val time = now()
+        val workout = getOrCreateWorkout(date, time)
+        val fresh = exerciseIds.distinct().filter { dao.getWorkoutExercise(workout.id, it) == null }
+        val first = (dao.minExerciseSortOrder(workout.id) ?: 0) - fresh.size
+        fresh.forEachIndexed { index, exerciseId ->
+            dao.insertWorkoutExercise(
+                WorkoutExerciseEntity(
+                    id = newId(), workoutId = workout.id, exerciseId = exerciseId, sortOrder = first + index,
+                    createdAt = time, updatedAt = time,
+                ),
+            )
+        }
+    }
+
+    /**
      * Adds a plan's exercises to a day, ready to be filled in. With [withSupersets], the plan's
      * supersets are grouped on the day too (with their timing), each under a new superset id so
      * they can be ungrouped on that day alone. Exercises already on the day are reused.

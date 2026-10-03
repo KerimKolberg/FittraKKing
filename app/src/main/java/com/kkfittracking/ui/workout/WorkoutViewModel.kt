@@ -9,8 +9,10 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kkfittracking.data.BodyRepository
 import com.kkfittracking.data.GameRepository
+import com.kkfittracking.data.PainRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.SettingsRepository
+import com.kkfittracking.data.SportWarmUps
 import com.kkfittracking.data.WorkoutRepository
 import com.kkfittracking.data.health.DailyActivity
 import com.kkfittracking.data.health.HealthConnect
@@ -20,17 +22,21 @@ import com.kkfittracking.guide.GuidedWorkout
 import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.DayWorkouts
 import com.kkfittracking.model.GameStats
+import com.kkfittracking.model.PainMoment
 import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.Routine
+import com.kkfittracking.model.Tendon
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.bodyweightOn
 import com.kkfittracking.model.dayWorkouts
+import com.kkfittracking.model.tendonsForMorningCheck
 import com.kkfittracking.ui.appViewModelFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -67,7 +73,17 @@ class WorkoutViewModel(
     private val healthConnect: HealthConnect,
     private val bodyRepository: BodyRepository,
     private val healthWorkouts: HealthWorkouts,
+    private val painRepository: PainRepository,
 ) : ViewModel() {
+    /** Tendons rated around yesterday's session and not yet this morning: the morning tendon check. */
+    val morningTendons: StateFlow<List<Tendon>> = painRepository.entries
+        .map { tendonsForMorningCheck(it, LocalDate.now()) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun ratePain(tendons: List<Tendon>, moment: PainMoment, score: Int) {
+        viewModelScope.launch { tendons.forEach { painRepository.rate(it, LocalDate.now(), moment, score) } }
+    }
+
     /** The shown day's steps and distance. */
     var steps by mutableStateOf<StepsState>(StepsState.Hidden)
         private set
@@ -198,6 +214,19 @@ class WorkoutViewModel(
         viewModelScope.launch { guideOpens = guidedWorkout.start(date)?.exerciseId }
     }
 
+    /** Puts a sport's warm-up at the top of the shown day and starts the guided workout with it. */
+    fun startWarmUp(warmUp: SportWarmUps.WarmUp) {
+        val date = uiState.value.date
+        viewModelScope.launch {
+            workoutRepository.addWarmUp(date, SportWarmUps.exerciseIds(warmUp))
+            guideOpens = if (guidedWorkout.state.value.isActiveOn(date)) {
+                guidedWorkout.afterSetLogged(date)?.exerciseId
+            } else {
+                guidedWorkout.start(date)?.exerciseId
+            }
+        }
+    }
+
     fun consumeGuideOpen() {
         guideOpens = null
     }
@@ -236,6 +265,7 @@ class WorkoutViewModel(
                 healthConnect = container.healthConnect,
                 bodyRepository = container.bodyRepository,
                 healthWorkouts = container.healthWorkouts,
+                painRepository = container.painRepository,
             )
         }
     }

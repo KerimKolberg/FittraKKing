@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.kkfittracking.data.BodyRepository
 import com.kkfittracking.data.BuiltInExercises
 import com.kkfittracking.data.ExerciseRepository
+import com.kkfittracking.data.PainRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.StarterPlans
@@ -18,7 +19,10 @@ import com.kkfittracking.model.ExerciseLink
 import com.kkfittracking.model.ExercisePlan
 import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.Muscle
+import com.kkfittracking.model.PainEntry
+import com.kkfittracking.model.PainMoment
 import com.kkfittracking.model.SetValues
+import com.kkfittracking.model.Tendon
 import com.kkfittracking.model.TrainingStyle
 import com.kkfittracking.model.UnitSystem
 import kotlinx.coroutines.flow.first
@@ -33,6 +37,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.nio.file.Files
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
@@ -56,6 +61,7 @@ class BackupRestoreTest {
         val workouts = WorkoutRepository(database)
         val plans = RoutineRepository(database)
         val body = BodyRepository(database.bodyDao())
+        val pain = PainRepository(database.painDao())
         val backups = BackupRepository(database, settings, "test")
     }
 
@@ -76,6 +82,8 @@ class BackupRestoreTest {
         old.workouts.addSet(day, squat, SetValues(weightKg = 140.0, reps = 3, isDropSet = true))
         val supersetId = old.workouts.createSuperset(day, listOf(bench, squat), transitionSeconds = 20)
         old.settings.setUnitSystem(UnitSystem.IMPERIAL)
+        old.settings.setReminderDays(setOf(DayOfWeek.MONDAY, DayOfWeek.THURSDAY))
+        old.pain.rate(Tendon.ACHILLES, day, PainMoment.AFTER, 4)
         old.exercises.saveExercise(null, "My Custom Lift", old.exercises.categories.first().first().id,
             ExerciseType.WEIGHT_REPS, "", tempo = "4-0-1-0", perSide = true, styles = listOf(TrainingStyle.ECCENTRIC))
         old.exercises.savePlan(bench, ExercisePlan(sets = 1, dropSets = true, drops = 3))
@@ -103,6 +111,8 @@ class BackupRestoreTest {
         assertEquals(StarterPlans.plans.size, new.plans.routines.first().size)
         assertEquals(80.0, new.body.measurements.first().single().value, 0.0)
         assertEquals(UnitSystem.IMPERIAL, new.settings.settings.first().unitSystem)
+        assertEquals(setOf(DayOfWeek.MONDAY, DayOfWeek.THURSDAY), new.settings.settings.first().reminderDays)
+        assertEquals(PainEntry(new.pain.entries.first().single().id, day, Tendon.ACHILLES, PainMoment.AFTER, 4), new.pain.entries.first().single())
         val custom = new.exercises.exercises.first().single { it.name == "My Custom Lift" }
         assertEquals("4-0-1-0", custom.tempo)
         assertTrue(custom.perSide)

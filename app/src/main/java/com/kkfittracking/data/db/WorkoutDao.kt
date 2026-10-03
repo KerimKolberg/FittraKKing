@@ -85,6 +85,9 @@ interface WorkoutDao {
     @Query("SELECT MAX(sortOrder) FROM workout_exercises WHERE workoutId = :workoutId AND deletedAt IS NULL")
     suspend fun maxExerciseSortOrder(workoutId: String): Int?
 
+    @Query("SELECT MIN(sortOrder) FROM workout_exercises WHERE workoutId = :workoutId AND deletedAt IS NULL")
+    suspend fun minExerciseSortOrder(workoutId: String): Int?
+
     @Insert
     suspend fun insertWorkoutExercise(workoutExercise: WorkoutExerciseEntity)
 

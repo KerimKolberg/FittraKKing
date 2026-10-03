@@ -97,6 +97,15 @@ class BuiltInExercisesTest {
     }
 
     @Test
+    fun warmUpsUseBuiltInExercises() {
+        val names = BuiltInExercises.exercises.map { it.name }.toSet()
+        SportWarmUps.all.forEach { warmUp ->
+            warmUp.exercises.forEach { assertTrue("${warmUp.sport}: $it", it in names) }
+            assertTrue(warmUp.exercises.size in 5..8)
+        }
+    }
+
+    @Test
     fun sportsHaveStrengthAndMobilityPlans() {
         val names = StarterPlans.plans.map { it.name }.toSet()
         listOf("Climbing", "Tennis").forEach { sport ->

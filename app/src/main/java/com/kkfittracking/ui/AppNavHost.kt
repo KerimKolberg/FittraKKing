@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kkfittracking.ui.analysis.AnalysisScreen
+import com.kkfittracking.ui.load.LoadScreen
 import com.kkfittracking.ui.body.BodyMetricScreen
 import com.kkfittracking.ui.body.BodyScreen
 import com.kkfittracking.ui.calendar.CalendarScreen
@@ -64,6 +65,9 @@ object AchievementsRoute
 data class AnalysisRoute(val exerciseId: String? = null)
 
 @Serializable
+object LoadRoute
+
+@Serializable
 object BodyRoute
 
 @Serializable
@@ -97,6 +101,7 @@ fun AppNavHost(
                 onOpenBody = { navController.navigate(BodyRoute) },
                 onOpenAchievements = { navController.navigate(AchievementsRoute) },
                 onOpenAnalysis = { navController.navigate(AnalysisRoute()) },
+                onOpenLoad = { navController.navigate(LoadRoute) },
                 onNewSuperset = { date -> navController.navigate(ExercisePickerRoute(date.toEpochDay(), superset = true)) },
                 onSupersets = { date -> navController.navigate(SupersetsRoute(epochDay = date.toEpochDay())) },
             )
@@ -175,6 +180,9 @@ fun AppNavHost(
         }
         composable<SupersetsRoute> {
             SupersetsScreen(onDone = { navController.popBackStack() })
+        }
+        composable<LoadRoute> {
+            LoadScreen(onBack = { navController.popBackStack() })
         }
         composable<AnalysisRoute> {
             AnalysisScreen(onBack = { navController.popBackStack() })
