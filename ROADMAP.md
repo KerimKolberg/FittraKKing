@@ -41,15 +41,15 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Progress graphs per exercise (max weight, estimated 1RM, volume, reps)
 - [x] Routines/templates and copying a past workout to today
 - [x] Body tracker: bodyweight, body fat %, measurements, with graphs
-- [ ] Backup/restore to a local file / Google Drive (via the Android file picker)
-- [ ] CSV export
-- [ ] Set and workout comments
+- [x] Backup/restore to a local file / Google Drive (via the Android file picker)
+- [x] CSV export
+- [x] Set notes
 - [ ] Plate calculator
 
 ### Nice-to-have / custom (Phase 5)
 - [ ] Features found missing after real use, to be added here
 - [x] Supersets / circuits (Phase 2c)
-- [ ] RPE / RIR per set
+- [x] RPE per set
 - [ ] Progression suggestions
 - [ ] Home-screen widget
 - [x] Wear OS companion (Galaxy Watch, Pixel Watch): the guided workout on the wrist (next exercise, log weight and reps, rest countdown with a buzz, pause, skip and stop, start today's plan), synced with the phone over Bluetooth through the Wear OS Data Layer; stays on screen dimmed (always-on)
@@ -71,7 +71,7 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Finished workouts written to Health Connect (at the end of a guided workout, or from a day's menu): gym blocks as strength training, runs, rides and sports sessions as their own workouts; sending a day again replaces it
 - [x] Calorie estimate per day and at the end of a workout (MET × bodyweight × time; the watch's measured calories when it recorded the activity); optionally sent to Health Connect
 - [ ] Maybe later: iPhone version (Kotlin Multiplatform + Compose Multiplatform; HealthKit; a separate Apple Watch app)
-- [ ] Health Connect: read daily steps (and optionally heart rate) that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
+- [x] Health Connect: read daily steps that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
 - [ ] Cloud sync + accounts (see "Keeping the door open for cloud sync")
 
 ## Data model

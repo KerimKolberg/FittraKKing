@@ -12,12 +12,14 @@ import com.kkfittracking.data.db.RoutineExerciseEntity
 import com.kkfittracking.data.db.WorkoutEntity
 import com.kkfittracking.data.db.WorkoutExerciseEntity
 import com.kkfittracking.data.db.WorkoutSetEntity
+import com.kkfittracking.model.AutoBackup
 import com.kkfittracking.model.BodyMetric
 import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.Settings
 import com.kkfittracking.model.ThemeMode
 import com.kkfittracking.model.UnitSystem
 import kotlinx.coroutines.flow.first
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -171,6 +173,12 @@ private fun Settings.toDto() = SettingsDto(
     styleOrder = styleOrder,
     sendWorkoutsToHealth = sendWorkoutsToHealth,
     sendCaloriesToHealth = sendCaloriesToHealth,
+    autoBackup = autoBackup.name,
+    reminderDays = reminderDays.sorted().map { it.name },
+    reminderMinute = reminderMinute,
+    progressionHints = progressionHints,
+    warmUpSets = warmUpSets,
+    barKg = barKg,
 )
 
 /** Unknown values fall back to the defaults: settings are not worth failing a restore over. */
@@ -190,5 +198,11 @@ private fun SettingsDto.toSettings(): Settings {
         styleOrder = styleOrder,
         sendWorkoutsToHealth = sendWorkoutsToHealth,
         sendCaloriesToHealth = sendCaloriesToHealth,
+        autoBackup = AutoBackup.entries.firstOrNull { it.name == autoBackup } ?: defaults.autoBackup,
+        reminderDays = reminderDays.mapNotNull { day -> DayOfWeek.entries.firstOrNull { it.name == day } }.toSet(),
+        reminderMinute = reminderMinute,
+        progressionHints = progressionHints,
+        warmUpSets = warmUpSets,
+        barKg = barKg,
     )
 }

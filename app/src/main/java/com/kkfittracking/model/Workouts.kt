@@ -178,13 +178,15 @@ private fun gymMet(exercise: DayExercise): Double = when (exercise.styles.firstO
 /** The kind of a run, ride or sports session, from its name and training style. */
 fun activityKind(exercise: DayExercise): ActivityKind {
     val name = exercise.exerciseName.lowercase()
-    fun has(vararg words: String) = words.any { it in name }
+    val words = name.split(Regex("[^a-z]+"))
+    // Words that start with one of these, so "Supine Spinal Twist" is no spin class and "Crunch" no run.
+    fun has(vararg starts: String) = starts.any { start -> if (' ' in start) start in name else words.any { it.startsWith(start) } }
     val style = exercise.styles.firstOrNull()
     return when {
         has("sprint", "run", "jog") -> ActivityKind.RUNNING
         has("hik") -> ActivityKind.HIKING
         has("walk") -> ActivityKind.WALKING
-        has("cycl", "bike", "spin") -> ActivityKind.BIKING
+        has("cycl", "bike", "biking", "spinning") -> ActivityKind.BIKING
         has("rowing") -> ActivityKind.ROWING
         has("swim") -> ActivityKind.SWIMMING
         has("ellip") -> ActivityKind.ELLIPTICAL

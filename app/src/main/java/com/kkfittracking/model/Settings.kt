@@ -1,5 +1,7 @@
 package com.kkfittracking.model
 
+import java.time.DayOfWeek
+
 enum class UnitSystem(
     val label: String,
     val weightUnit: String,
@@ -80,4 +82,16 @@ data class Settings(
     val sendWorkoutsToHealth: Boolean = true,
     /** The estimated calories go along; off, as a watch that counts calories all day would count them twice. */
     val sendCaloriesToHealth: Boolean = false,
+    /** A backup saved to Downloads/KK-Fittracking by itself. */
+    val autoBackup: AutoBackup = AutoBackup.WEEKLY,
+    /** Days with a training reminder; empty for none. */
+    val reminderDays: Set<DayOfWeek> = emptySet(),
+    /** When the reminder comes, in minutes after midnight. */
+    val reminderMinute: Int = 17 * 60,
+    /** Suggest the next weight, reps or time from the last session. */
+    val progressionHints: Boolean = true,
+    /** Suggest warm-up sets before the first heavy set of a lift. */
+    val warmUpSets: Boolean = true,
+    /** The barbell's weight, for the plate calculator and warm-ups. */
+    val barKg: Double = 20.0,
 )

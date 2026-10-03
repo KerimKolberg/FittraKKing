@@ -7,14 +7,16 @@ import com.kkfittracking.data.ExerciseRepository
 import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.db.WorkoutDao
 import com.kkfittracking.model.CsvExport
+import com.kkfittracking.model.ExportFile
 import com.kkfittracking.model.ExportSet
 import com.kkfittracking.model.SetValues
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.time.LocalDateTime
 
-/** Reads and writes backup and export files that the user picked with the system file picker. */
+/** Reads and writes backup and export files: picked with the system file picker, or in Downloads/KK-Fittracking. */
 class DataTransfer(
     private val context: Context,
     private val backups: BackupRepository,
@@ -22,10 +24,10 @@ class DataTransfer(
     private val bodyRepository: BodyRepository,
     private val settingsRepository: SettingsRepository,
     private val exerciseRepository: ExerciseRepository,
+    private val downloads: DownloadsFolder,
 ) {
     suspend fun writeBackup(uri: Uri) {
-        val text = BackupJson.encode(backups.createBackup())
-        write(uri, text)
+        write(uri, backupText())
         settingsRepository.setLastBackupAt(System.currentTimeMillis())
     }
 
@@ -37,7 +39,36 @@ class DataTransfer(
         exerciseRepository.syncBuiltIns()
     }
 
-    suspend fun exportWorkouts(uri: Uri) {
+    suspend fun exportWorkouts(uri: Uri) = write(uri, workoutsCsv())
+
+    suspend fun exportBodyMeasurements(uri: Uri) = write(uri, bodyCsv())
+
+    val canSaveToDownloads: Boolean get() = downloads.isAvailable
+
+    /**
+     * One tap: a backup and both spreadsheets, saved to Downloads/KK-Fittracking with today's date
+     * and time in their names. Returns the folder they are in.
+     */
+    suspend fun saveAllToDownloads(): String {
+        val at = LocalDateTime.now()
+        downloads.save(ExportFile.BACKUP.fileName(at), ExportFile.BACKUP.mimeType, backupText())
+        settingsRepository.setLastBackupAt(System.currentTimeMillis())
+        downloads.save(ExportFile.WORKOUTS.fileName(at), ExportFile.WORKOUTS.mimeType, workoutsCsv())
+        downloads.save(ExportFile.BODY.fileName(at), ExportFile.BODY.mimeType, bodyCsv())
+        return downloads.shownPath
+    }
+
+    /** The automatic backup: a dated file in Downloads/KK-Fittracking; only the newest few are kept. */
+    suspend fun autoBackup() {
+        val file = ExportFile.AUTO_BACKUP
+        downloads.save(file.fileName(LocalDateTime.now()), file.mimeType, backupText())
+        settingsRepository.setLastBackupAt(System.currentTimeMillis())
+        downloads.pruneAutoBackups()
+    }
+
+    private suspend fun backupText(): String = BackupJson.encode(backups.createBackup())
+
+    private suspend fun workoutsCsv(): String {
         val units = settingsRepository.settings.first().unitSystem
         val sets = workoutDao.exportRows().map { row ->
             ExportSet(
@@ -56,12 +87,12 @@ class DataTransfer(
                 ),
             )
         }
-        write(uri, CsvExport.workouts(sets, units))
+        return CsvExport.workouts(sets, units)
     }
 
-    suspend fun exportBodyMeasurements(uri: Uri) {
+    private suspend fun bodyCsv(): String {
         val units = settingsRepository.settings.first().unitSystem
-        write(uri, CsvExport.bodyMeasurements(bodyRepository.measurements.first(), units))
+        return CsvExport.bodyMeasurements(bodyRepository.measurements.first(), units)
     }
 
     private suspend fun write(uri: Uri, text: String) = withContext(Dispatchers.IO) {

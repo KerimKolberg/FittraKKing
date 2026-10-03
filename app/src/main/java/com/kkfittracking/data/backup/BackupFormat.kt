@@ -174,6 +174,12 @@ data class SettingsDto(
     val styleOrder: List<String> = emptyList(),
     val sendWorkoutsToHealth: Boolean = true,
     val sendCaloriesToHealth: Boolean = false,
+    val autoBackup: String = "WEEKLY",
+    val reminderDays: List<String> = emptyList(),
+    val reminderMinute: Int = 17 * 60,
+    val progressionHints: Boolean = true,
+    val warmUpSets: Boolean = true,
+    val barKg: Double = 20.0,
 )
 
 /** A backup that cannot be restored, with a message for the user. */

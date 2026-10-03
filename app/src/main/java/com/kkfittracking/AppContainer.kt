@@ -10,6 +10,7 @@ import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.WorkoutRepository
 import com.kkfittracking.data.backup.BackupRepository
 import com.kkfittracking.data.backup.DataTransfer
+import com.kkfittracking.data.backup.DownloadsFolder
 import com.kkfittracking.data.db.AppDatabase
 import com.kkfittracking.data.health.HealthConnect
 import com.kkfittracking.data.health.HealthWorkouts
@@ -65,6 +66,7 @@ class AppContainer(context: Context) {
         bodyRepository = bodyRepository,
         settingsRepository = settingsRepository,
         exerciseRepository = exerciseRepository,
+        downloads = DownloadsFolder(appContext),
     )
 
     private val alerts = Alerts(appContext)

@@ -111,5 +111,9 @@ class WorkoutsTest {
         assertEquals(ActivityKind.HIIT, kind("Tabata", ExerciseType.INTERVALS, TrainingStyle.HIIT))
         assertEquals(ActivityKind.RUNNING, kind("Hill Sprints", ExerciseType.INTERVALS, TrainingStyle.HIIT))
         assertEquals(ActivityKind.DANCE, kind("Salsa", ExerciseType.SESSION, TrainingStyle.DANCE))
+        // Whole words: a spinal twist is no spin class, a crunch no run.
+        assertEquals(ActivityKind.OTHER, kind("Supine Spinal Twist", ExerciseType.TIME, TrainingStyle.STRETCHING))
+        assertEquals(ActivityKind.HIIT, kind("Crunch Intervals", ExerciseType.INTERVALS, TrainingStyle.HIIT))
+        assertEquals(ActivityKind.BIKING, kind("Spinning", ExerciseType.DISTANCE_TIME, TrainingStyle.CARDIO))
     }
 }

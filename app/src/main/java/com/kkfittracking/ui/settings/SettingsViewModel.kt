@@ -12,6 +12,7 @@ import com.kkfittracking.data.backup.BackupException
 import com.kkfittracking.data.backup.BackupFile
 import com.kkfittracking.data.backup.DataTransfer
 import com.kkfittracking.data.health.HealthConnect
+import com.kkfittracking.model.AutoBackup
 import com.kkfittracking.model.Category
 import com.kkfittracking.model.Settings
 import com.kkfittracking.model.ThemeMode
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.DayOfWeek
 
 class SettingsViewModel(
     private val repository: SettingsRepository,
@@ -99,6 +101,53 @@ class SettingsViewModel(
         private set
 
     fun backUp(uri: Uri) = perform("Backup saved") { dataTransfer.writeBackup(uri) }
+
+    /** Android 10 and later: files go straight to Downloads/KK-Fittracking. */
+    val canSaveToDownloads: Boolean get() = dataTransfer.canSaveToDownloads
+
+    fun saveAllToDownloads() {
+        viewModelScope.launch {
+            isBusy = true
+            message = try {
+                "Saved to ${dataTransfer.saveAllToDownloads()}"
+            } catch (e: IOException) {
+                "Could not save: ${e.message}"
+            } catch (e: SecurityException) {
+                "The app is not allowed to save to Downloads."
+            } finally {
+                isBusy = false
+            }
+        }
+    }
+
+    fun setAutoBackup(value: AutoBackup) {
+        viewModelScope.launch { repository.setAutoBackup(value) }
+    }
+
+    fun setProgressionHints(value: Boolean) {
+        viewModelScope.launch { repository.setProgressionHints(value) }
+    }
+
+    fun setWarmUpSets(value: Boolean) {
+        viewModelScope.launch { repository.setWarmUpSets(value) }
+    }
+
+    /** One step (2.5 kg or 5 lb) heavier (+1) or lighter (-1) bar. */
+    fun changeBar(direction: Int) {
+        val current = settings.value ?: return
+        val units = current.unitSystem
+        val value = units.weightFromKg(current.barKg) + direction * units.weightStep
+        viewModelScope.launch { repository.setBarKg(units.weightToKg(value.coerceAtLeast(0.0))) }
+    }
+
+    fun toggleReminderDay(day: DayOfWeek) {
+        val days = settings.value?.reminderDays ?: return
+        viewModelScope.launch { repository.setReminderDays(if (day in days) days - day else days + day) }
+    }
+
+    fun setReminderMinute(value: Int) {
+        viewModelScope.launch { repository.setReminderMinute(value) }
+    }
 
     fun exportWorkouts(uri: Uri) = perform("Workouts exported") { dataTransfer.exportWorkouts(uri) }
 

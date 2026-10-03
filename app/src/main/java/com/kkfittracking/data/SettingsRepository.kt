@@ -3,15 +3,18 @@ package com.kkfittracking.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.kkfittracking.model.AutoBackup
 import com.kkfittracking.model.Settings
 import com.kkfittracking.model.ThemeMode
 import com.kkfittracking.model.UnitSystem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.DayOfWeek
 
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
     val settings: Flow<Settings> = dataStore.data.map { prefs ->
@@ -30,6 +33,12 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             styleOrder = prefs[STYLE_ORDER].toList(),
             sendWorkoutsToHealth = prefs[SEND_WORKOUTS] ?: defaults.sendWorkoutsToHealth,
             sendCaloriesToHealth = prefs[SEND_CALORIES] ?: defaults.sendCaloriesToHealth,
+            autoBackup = prefs[AUTO_BACKUP].toEnumOr(defaults.autoBackup),
+            reminderDays = prefs[REMINDER_DAYS].toList().mapNotNull { day -> DayOfWeek.entries.firstOrNull { it.name == day } }.toSet(),
+            reminderMinute = prefs[REMINDER_MINUTE] ?: defaults.reminderMinute,
+            progressionHints = prefs[PROGRESSION_HINTS] ?: defaults.progressionHints,
+            warmUpSets = prefs[WARM_UP_SETS] ?: defaults.warmUpSets,
+            barKg = prefs[BAR_KG] ?: defaults.barKg,
         )
     }
 
@@ -62,7 +71,27 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         it[STYLE_ORDER] = settings.styleOrder.joinToString(",")
         it[SEND_WORKOUTS] = settings.sendWorkoutsToHealth
         it[SEND_CALORIES] = settings.sendCaloriesToHealth
+        it[AUTO_BACKUP] = settings.autoBackup.name
+        it[REMINDER_DAYS] = settings.reminderDays.joinToString(",") { day -> day.name }
+        it[REMINDER_MINUTE] = settings.reminderMinute.coerceIn(0, MINUTES_PER_DAY - 1)
+        it[PROGRESSION_HINTS] = settings.progressionHints
+        it[WARM_UP_SETS] = settings.warmUpSets
+        it[BAR_KG] = settings.barKg.coerceIn(0.0, MAX_BAR_KG)
     }
+
+    suspend fun setAutoBackup(value: AutoBackup) = dataStore.edit { it[AUTO_BACKUP] = value.name }
+
+    suspend fun setReminderDays(days: Set<DayOfWeek>) =
+        dataStore.edit { prefs -> prefs[REMINDER_DAYS] = days.sorted().joinToString(",") { it.name } }
+
+    suspend fun setReminderMinute(value: Int) =
+        dataStore.edit { it[REMINDER_MINUTE] = Math.floorMod(value, MINUTES_PER_DAY) }
+
+    suspend fun setProgressionHints(value: Boolean) = dataStore.edit { it[PROGRESSION_HINTS] = value }
+
+    suspend fun setWarmUpSets(value: Boolean) = dataStore.edit { it[WARM_UP_SETS] = value }
+
+    suspend fun setBarKg(value: Double) = dataStore.edit { it[BAR_KG] = value.coerceIn(0.0, MAX_BAR_KG) }
 
     suspend fun setSendWorkoutsToHealth(value: Boolean) = dataStore.edit { it[SEND_WORKOUTS] = value }
 
@@ -92,6 +121,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         const val MIN_DROP_PERCENT = 5
         const val MAX_DROP_PERCENT = 50
         const val MAX_TRANSITION_SECONDS = 120
+        const val MINUTES_PER_DAY = 24 * 60
+        const val MAX_BAR_KG = 50.0
 
         private val UNIT_SYSTEM = stringPreferencesKey("unit_system")
         private val REST_TIMER_SECONDS = intPreferencesKey("rest_timer_seconds")
@@ -107,6 +138,12 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         private val STYLE_ORDER = stringPreferencesKey("style_order")
         private val SEND_WORKOUTS = booleanPreferencesKey("send_workouts_to_health")
         private val SEND_CALORIES = booleanPreferencesKey("send_calories_to_health")
+        private val AUTO_BACKUP = stringPreferencesKey("auto_backup")
+        private val REMINDER_DAYS = stringPreferencesKey("reminder_days")
+        private val REMINDER_MINUTE = intPreferencesKey("reminder_minute")
+        private val PROGRESSION_HINTS = booleanPreferencesKey("progression_hints")
+        private val WARM_UP_SETS = booleanPreferencesKey("warm_up_sets")
+        private val BAR_KG = doublePreferencesKey("bar_kg")
     }
 }
 

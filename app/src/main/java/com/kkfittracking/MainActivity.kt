@@ -1,5 +1,7 @@
 package com.kkfittracking
 
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -26,9 +28,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) openRequest.value = exerciseToOpen(intent)
-        enableEdgeToEdge()
         val container = (application as FitnessApplication).container
+        if (savedInstanceState == null) handle(intent)
+        enableEdgeToEdge()
         setContent {
             val settings by container.settingsRepository.settings
                 .collectAsStateWithLifecycle(initialValue = Settings())
@@ -60,6 +62,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        handle(intent)
+    }
+
+    /** Opens the exercise the intent names, or starts today's guided workout (widget, reminder). */
+    private fun handle(intent: Intent?) {
+        if (intent?.action == ACTION_START_GUIDE) {
+            val container = (application as FitnessApplication).container
+            val today = LocalDate.now()
+            container.appScope.launch {
+                val target = if (container.guidedWorkout.state.value.isActiveOn(today)) {
+                    container.guidedWorkout.afterSetLogged(today)
+                } else {
+                    container.guidedWorkout.start(today)
+                }
+                target?.let { openRequest.value = ExerciseLogRoute(today.toEpochDay(), it.exerciseId) }
+            }
+            return
+        }
         exerciseToOpen(intent)?.let { openRequest.value = it }
     }
 
@@ -76,5 +96,14 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val EXTRA_EPOCH_DAY = "epochDay"
         const val EXTRA_EXERCISE_ID = "exerciseId"
+        const val ACTION_START_GUIDE = "com.kkfittracking.START_GUIDE"
+
+        /** Opens the app and starts (or goes back to) today's guided workout. */
+        fun startGuideIntent(context: Context): PendingIntent {
+            val intent = Intent(context, MainActivity::class.java)
+                .setAction(ACTION_START_GUIDE)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            return PendingIntent.getActivity(context, 11, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        }
     }
 }
