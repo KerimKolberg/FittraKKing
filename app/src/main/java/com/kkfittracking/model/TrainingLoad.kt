@@ -22,7 +22,7 @@ fun setsPerMuscle(histories: Map<String, List<HistorySession>>, exercises: List<
     loadSets(histories, exercises, from, to).forEach { set ->
         val weight = if (set.values.isDropSet) 0.5 else 1.0
         set.exercise.muscles.forEachIndexed { index, muscle ->
-            if (muscle == Muscle.OTHER || muscle == Muscle.CARDIO || muscle == Muscle.MIND || muscle == Muscle.SPORT) return@forEachIndexed
+            if (!muscle.isBodyPart) return@forEachIndexed
             totals[muscle] = (totals[muscle] ?: 0.0) + if (index == 0) weight else weight / 2
         }
     }
@@ -121,7 +121,7 @@ fun forgottenAreas(histories: Map<String, List<HistorySession>>, exercises: List
     }
     val recent = last.filterValues { !it.isBefore(today.minusDays(90)) }.keys
     val watched = (OFTEN_FORGOTTEN + recent).distinct()
-        .filter { it != Muscle.OTHER && it != Muscle.CARDIO && it != Muscle.MIND && it != Muscle.SPORT && it != Muscle.FULL_BODY }
+        .filter { it.isBodyPart && it != Muscle.FULL_BODY }
     return watched.mapNotNull { muscle ->
         val date = last[muscle]
         val since = date?.let { ChronoUnit.DAYS.between(it, today) }

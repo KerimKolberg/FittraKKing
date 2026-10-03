@@ -43,18 +43,17 @@ fun formatPlates(load: PlateLoad): String {
 data class WarmUpSet(val weightKg: Double, val reps: Int)
 
 /**
- * Warm-up sets before [workKg]: the empty bar, then about 40%, 60% and 80% with fewer reps each
- * time, rounded to what the plates make; sets that would be no lighter than the work are left out.
- * Nothing for light weights, which need no ramp.
+ * Warm-up sets before [workKg]: the empty bar (when there is one, [barKg] > 0), then about 40%, 60%
+ * and 80% with fewer reps each time, rounded to what the plates make; sets that would be no lighter
+ * than the work are left out. Nothing for light weights, which need no ramp, or machine levels.
  */
 fun warmUpSets(workKg: Double, barKg: Double, units: UnitSystem): List<WarmUpSet> {
-    if (workKg < barKg + 20.0) return emptyList()
+    if (units == UnitSystem.LEVELS || workKg < barKg + 20.0) return emptyList()
     val step = units.weightToKg(if (units == UnitSystem.IMPERIAL) 5.0 else 2.5)
     fun rounded(kg: Double) = maxOf(barKg, (kg / step).roundToInt() * step)
-    val ramp = listOf(0.0 to 10, 0.4 to 8, 0.6 to 5, 0.8 to 3).map { (part, reps) ->
-        WarmUpSet(if (part == 0.0) barKg else rounded(workKg * part), reps)
-    }
-    return ramp.filter { it.weightKg < workKg - 0.01 }.distinctBy { it.weightKg }
+    val ramp = listOf(0.4 to 8, 0.6 to 5, 0.8 to 3).map { (part, reps) -> WarmUpSet(rounded(workKg * part), reps) }
+    val bar = listOf(WarmUpSet(barKg, 10)).filter { barKg > 0 }
+    return (bar + ramp).filter { it.weightKg > 0 && it.weightKg < workKg - 0.01 }.distinctBy { it.weightKg }
 }
 
 /** Barbell lifts, by name: where the plate calculator and warm-ups make sense. */

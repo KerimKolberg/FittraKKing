@@ -47,19 +47,23 @@ fun progressionSuggestion(
 }
 
 private fun weightSuggestion(working: List<SetValues>, plan: ExercisePlan, units: UnitSystem, pain: PainLight?): Suggestion? {
-    val top = working.filter { it.weightKg != null && it.reps != null }.maxByOrNull { it.weightKg!! } ?: return null
-    val weight = top.weightKg!!
-    val atTop = working.filter { it.weightKg == weight && it.reps != null }
-    val target = plan.reps ?: atTop.maxOf { it.reps!! }
-    val lowest = atTop.minOf { it.reps!! }
+    // Weight and reps of each set that has both.
+    val done = working.mapNotNull { set -> set.weightKg?.let { kg -> set.reps?.let { kg to it } } }
+    val weight = done.maxOfOrNull { it.first } ?: return null
+    val repsAtTop = done.filter { it.first == weight }.map { it.second }
+    val target = plan.reps ?: repsAtTop.max()
+    val lowest = repsAtTop.min()
     val label = formatWeight(weight, units)
     return when {
         pain == PainLight.RED -> {
             val lighter = roundToPlates(weight * 0.9, units)
-            Suggestion(SetValues(lighter, target), "Your tendon check says step back: about 10% lighter ($label → ${formatWeight(lighter, units)}).")
+            Suggestion(
+                SetValues(lighter, target),
+                "Your tendon check says step back: about 10% lighter ($label → ${formatWeight(lighter, units)}).",
+            )
         }
         pain == PainLight.YELLOW -> Suggestion(SetValues(weight, target), "Hold the load while the tendon settles: $label × $target again.")
-        lowest >= target && (plan.sets == null || atTop.size >= plan.sets) -> {
+        lowest >= target && (plan.sets == null || repsAtTop.size >= plan.sets) -> {
             val next = weight + weightIncrementKg(weight, units)
             Suggestion(SetValues(next, target), "Every set reached $target reps at $label last time: add a little weight.")
         }
@@ -72,11 +76,11 @@ private fun weightSuggestion(working: List<SetValues>, plan: ExercisePlan, units
 
 private fun repsSuggestion(working: List<SetValues>, plan: ExercisePlan, pain: PainLight?): Suggestion? {
     val reps = working.mapNotNull { it.reps }
-    if (reps.isEmpty()) return null
-    val best = reps.max()
+    val best = reps.maxOrNull() ?: return null
     val lowest = reps.min()
     return when {
-        pain == PainLight.RED -> Suggestion(SetValues(reps = (best * 0.8).roundToInt().coerceAtLeast(1)), "Your tendon check says step back: fewer reps for now.")
+        pain == PainLight.RED ->
+            Suggestion(SetValues(reps = (best * 0.8).roundToInt().coerceAtLeast(1)), "Your tendon check says step back: fewer reps for now.")
         pain == PainLight.YELLOW -> Suggestion(SetValues(reps = best), "Hold the load while the tendon settles: $best reps again.")
         plan.reps != null && lowest < plan.reps -> Suggestion(SetValues(reps = lowest + 1), "Aim for ${lowest + 1} reps, on the way to ${plan.reps}.")
         else -> Suggestion(SetValues(reps = best + 1), "Last time's best was $best: try one more rep.")
@@ -84,12 +88,12 @@ private fun repsSuggestion(working: List<SetValues>, plan: ExercisePlan, pain: P
 }
 
 private fun holdSuggestion(working: List<SetValues>, type: ExerciseType, units: UnitSystem, pain: PainLight?): Suggestion? {
-    val held = working.filter { it.durationSeconds != null }.maxByOrNull { it.durationSeconds!! } ?: return null
-    val seconds = held.durationSeconds!!
+    val held = working.filter { it.durationSeconds != null }.maxByOrNull { it.durationSeconds ?: 0 } ?: return null
+    val seconds = held.durationSeconds ?: return null
     val weight = held.weightKg?.takeIf { type == ExerciseType.TIME_WEIGHT && it > 0 }
     return when {
         pain == PainLight.RED -> Suggestion(
-            held.copy(durationSeconds = seconds, weightKg = weight?.let { roundToPlates(it * 0.9, units) }, rpe = null, note = ""),
+            SetValues(weightKg = weight?.let { roundToPlates(it * 0.9, units) }, durationSeconds = seconds),
             "Your tendon check says step back: a lighter hold for now.",
         )
         pain == PainLight.YELLOW -> Suggestion(

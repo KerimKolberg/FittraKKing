@@ -80,6 +80,9 @@ class ProgressionTest {
         val ramp = warmUpSets(workKg = 100.0, barKg = 20.0, units = metric)
         assertEquals(listOf(20.0 to 10, 40.0 to 8, 60.0 to 5, 80.0 to 3), ramp.map { it.weightKg to it.reps })
         assertEquals(emptyList<WarmUpSet>(), warmUpSets(30.0, 20.0, metric))
+        // Dumbbells: no bar to start from.
+        assertEquals(listOf(12.5 to 8, 17.5 to 5, 25.0 to 3), warmUpSets(30.0, 0.0, metric).map { it.weightKg to it.reps })
+        assertEquals(emptyList<WarmUpSet>(), warmUpSets(100.0, 0.0, UnitSystem.LEVELS))
         assertTrue(isBarbellLift("Barbell Squat"))
         assertTrue(!isBarbellLift("Goblet Squat"))
     }

@@ -17,9 +17,11 @@ import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.allRecords
 import com.kkfittracking.ui.AnalysisRoute
 import com.kkfittracking.ui.appViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 
 data class AnalysisUiState(
@@ -59,7 +61,8 @@ class AnalysisViewModel(
             units = settings.unitSystem,
             isLoading = false,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnalysisUiState())
+    }.flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnalysisUiState())
 
     companion object {
         val Factory = appViewModelFactory { container ->

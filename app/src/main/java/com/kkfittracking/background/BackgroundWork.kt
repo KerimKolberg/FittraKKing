@@ -1,16 +1,10 @@
 package com.kkfittracking.background
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -22,9 +16,13 @@ import androidx.work.WorkerParameters
 import com.kkfittracking.FitnessApplication
 import com.kkfittracking.MainActivity
 import com.kkfittracking.R
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.canPostNotifications
 import com.kkfittracking.model.AutoBackup
 import com.kkfittracking.model.Settings
+import com.kkfittracking.model.dayCompletion
 import com.kkfittracking.model.nextReminder
+import com.kkfittracking.openAppIntent
 import kotlinx.coroutines.flow.first
 import java.io.IOException
 import java.time.Duration
@@ -87,11 +85,12 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         val container = (applicationContext as FitnessApplication).container
         val settings = container.settingsRepository.settings.first()
         val day = container.workoutRepository.observeDay(LocalDate.now()).first()
-        val left = day.filter { it.sets.isEmpty() }
+        // Not started or only partly done, as the day screen and the widget count it.
+        val left = dayCompletion(day).exercises.filter { !it.isDone }
         val text = when {
             day.isEmpty() -> "Nothing planned yet: add a plan or log freely."
             left.isEmpty() -> "Everything planned today is done. Nice."
-            else -> "${left.size} to do: " + left.take(4).joinToString(", ") { it.exerciseName } +
+            else -> "${left.size} to do: " + left.take(4).joinToString(", ") { it.name } +
                 if (left.size > 4) "…" else ""
         }
         notify(applicationContext, text, canStart = left.isNotEmpty())
@@ -100,23 +99,18 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
     }
 
     private fun notify(context: Context, text: String, canStart: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
+        if (!canPostNotifications(context)) return
         val channel = NotificationChannel(CHANNEL_ID, "Training reminders", NotificationManager.IMPORTANCE_DEFAULT).apply {
             description = "Reminds you to train on the days you chose"
         }
         context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
-        val open = Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_timer)
             .setContentTitle("Time to train 💪")
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setContentIntent(PendingIntent.getActivity(context, 10, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
+            .setContentIntent(openAppIntent(context, RequestCodes.REMINDER))
             .setAutoCancel(true)
         if (canStart) builder.addAction(0, "▶ Start", MainActivity.startGuideIntent(context))
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())

@@ -1,11 +1,11 @@
 package com.kkfittracking.timer
 
-import android.Manifest
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.openAppIntent
+import com.kkfittracking.canPostNotifications
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Build
@@ -14,7 +14,6 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.kkfittracking.R
 
 /** Vibrations, beeps and notifications shared by the timers. */
@@ -47,29 +46,20 @@ class Alerts(private val context: Context) {
 
     /** Shows a notification that opens the app, if the user allowed notifications. */
     fun notify(channel: Channel, notificationId: Int, title: String, text: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
+        if (!canPostNotifications(context)) return
         val notificationChannel = NotificationChannel(channel.id, channel.title, NotificationManager.IMPORTANCE_HIGH).apply {
             description = channel.description
             // The alerts vibrate on their own, so the notification itself does not.
             enableVibration(false)
         }
         context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(notificationChannel)
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val contentIntent = launchIntent?.let {
-            PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        }
         val notification = NotificationCompat.Builder(context, channel.id)
             .setSmallIcon(R.drawable.ic_timer)
             .setContentTitle(title)
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setContentIntent(contentIntent)
+            .setContentIntent(openAppIntent(context, RequestCodes.ALERT_NOTIFICATION))
             .setAutoCancel(true)
             .setTimeoutAfter(TIMEOUT_MILLIS)
             .build()

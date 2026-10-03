@@ -85,7 +85,11 @@ enum class Muscle(val label: String, val regionKey: String) {
     SPORT("Sports", Regions.SPORTS),
 
     /** Not assigned to a muscle; fits any section. */
-    OTHER("Other", "");
+    OTHER("Other", ""),
+    ;
+
+    /** A part of the body that sets can be counted for (not cardio, sports, the mind or "other"). */
+    val isBodyPart: Boolean get() = this != OTHER && this != CARDIO && this != MIND && this != SPORT
 
     companion object {
         /** The muscles to choose from in a section, "Other" last. */

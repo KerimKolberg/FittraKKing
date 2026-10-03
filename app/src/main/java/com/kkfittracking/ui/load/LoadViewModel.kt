@@ -18,9 +18,11 @@ import com.kkfittracking.model.painChecks
 import com.kkfittracking.model.setsPerMuscle
 import com.kkfittracking.model.setsPerTendon
 import com.kkfittracking.ui.appViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -61,7 +63,8 @@ class LoadViewModel(
             pain = pain,
             isLoading = false,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LoadUiState())
+    }.flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LoadUiState())
 
     /** A morning rating is for today; before and after, for today's session too. */
     fun rate(tendons: List<Tendon>, moment: PainMoment, score: Int) {

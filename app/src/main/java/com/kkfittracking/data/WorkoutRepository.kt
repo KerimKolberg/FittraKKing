@@ -21,8 +21,10 @@ import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.groupSupersets
 import com.kkfittracking.model.historiesOf
 import com.kkfittracking.model.unfinishedPart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.util.UUID
@@ -48,7 +50,10 @@ class WorkoutRepository(
 
     /** Every exercise's history at once (newest session first), for the graphs and records. */
     fun observeAllHistory(): Flow<Map<String, List<HistorySession>>> =
-        dao.observeAllSets().map { rows -> historiesOf(rows.map { Triple(it.date, it.exerciseId, it.set.toSetEntry()) }) }
+        dao.observeAllSets()
+            .map { rows -> historiesOf(rows.map { Triple(it.date, it.exerciseId, it.set.toSetEntry()) }) }
+            // Every set ever logged: grouped off the main thread.
+            .flowOn(Dispatchers.Default)
 
     /** The dates between [from] and [to] (inclusive) that have at least one logged set. */
     fun observeWorkoutDates(from: LocalDate, to: LocalDate): Flow<Set<LocalDate>> =

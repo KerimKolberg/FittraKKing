@@ -1,5 +1,7 @@
 package com.kkfittracking.guide
 
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.openAppIntent
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,7 +16,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.kkfittracking.FitnessApplication
-import com.kkfittracking.MainActivity
 import com.kkfittracking.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -121,14 +122,8 @@ class WorkoutGuideService : Service() {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    private fun openIntent(epochDay: Long?, exerciseId: String?): PendingIntent {
-        val intent = Intent(this, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        if (epochDay != null && exerciseId != null) {
-            intent.putExtra(MainActivity.EXTRA_EPOCH_DAY, epochDay).putExtra(MainActivity.EXTRA_EXERCISE_ID, exerciseId)
-        }
-        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-    }
+    private fun openIntent(epochDay: Long?, exerciseId: String?): PendingIntent =
+        openAppIntent(this, RequestCodes.GUIDE_NOTIFICATION, epochDay, exerciseId)
 
     /** The parts of the guide the notification shows. */
     private data class NotificationContent(

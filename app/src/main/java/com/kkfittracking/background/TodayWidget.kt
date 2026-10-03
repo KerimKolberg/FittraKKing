@@ -1,11 +1,11 @@
 package com.kkfittracking.background
 
-import android.app.PendingIntent
+import com.kkfittracking.RequestCodes
+import com.kkfittracking.openAppIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
 import com.kkfittracking.FitnessApplication
@@ -58,11 +58,7 @@ class TodayWidget : AppWidgetProvider() {
             )
             views.setViewVisibility(R.id.widget_start, if (left.isEmpty()) View.GONE else View.VISIBLE)
             views.setOnClickPendingIntent(R.id.widget_start, MainActivity.startGuideIntent(context))
-            val open = Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            views.setOnClickPendingIntent(
-                R.id.widget_root,
-                PendingIntent.getActivity(context, 12, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT),
-            )
+            views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context, RequestCodes.WIDGET))
             return views
         }
     }

@@ -91,9 +91,6 @@ interface WorkoutDao {
     @Insert
     suspend fun insertWorkoutExercise(workoutExercise: WorkoutExerciseEntity)
 
-    @Query("SELECT * FROM workout_exercises WHERE workoutId = :workoutId AND deletedAt IS NULL ORDER BY sortOrder")
-    suspend fun getWorkoutExercises(workoutId: String): List<WorkoutExerciseEntity>
-
     @Query("SELECT * FROM workout_sets WHERE id = :id")
     suspend fun getSet(id: String): WorkoutSetEntity?
 

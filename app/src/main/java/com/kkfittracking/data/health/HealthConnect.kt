@@ -6,6 +6,7 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateRequest
@@ -80,7 +81,7 @@ class HealthConnect(private val context: Context) {
             val end = Instant.ofEpochMilli(maxOf(session.endMillis, session.startMillis + 60_000))
             val startOffset = zone.rules.getOffset(start)
             val endOffset = zone.rules.getOffset(end)
-            listOfNotNull(
+            listOfNotNull<Record>(
                 ExerciseSessionRecord(
                     startTime = start,
                     startZoneOffset = startOffset,

@@ -48,9 +48,9 @@ import com.kkfittracking.model.PainMoment
 import com.kkfittracking.model.Tendon
 import com.kkfittracking.model.VolumeLevel
 import com.kkfittracking.model.formatNumber
+import com.kkfittracking.ui.components.PainDot
+import com.kkfittracking.ui.components.PainRatingDialog
 import com.kkfittracking.ui.components.TendonIcon
-import com.kkfittracking.ui.log.PainDot
-import com.kkfittracking.ui.log.PainRatingDialog
 import java.time.LocalDate
 
 /** Training load and tendons: the pain log, this week per muscle and tendon, the load trend and what was forgotten. */
@@ -91,6 +91,20 @@ fun LoadScreen(onBack: () -> Unit, viewModel: LoadViewModel = viewModel(factory 
             }
             item {
                 OutlinedButton(onClick = { choosingTendon = true }, modifier = Modifier.fillMaxWidth()) { Text("Rate a tendon") }
+            }
+            if (state.pain.isNotEmpty()) {
+                item { Text("Latest ratings", style = MaterialTheme.typography.labelLarge) }
+                // A wrong tap can be taken back.
+                items(state.pain.take(RECENT_RATINGS), key = { "pain-${it.id}" }) { entry ->
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "${entry.date} · ${entry.tendon.label.substringBefore(" (")} · ${entry.moment.label}: ${entry.score}/10",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = { viewModel.delete(entry) }) { Text("Delete") }
+                    }
+                }
             }
 
             item { Heading("Training load", "Effort × minutes this week, against your usual week of the last four.") }
@@ -250,5 +264,7 @@ private fun VolumeLevel.color(): Color = when (this) {
     VolumeLevel.HIGH -> Color(0xFF1B5E20)
     VolumeLevel.VERY_HIGH -> Color(0xFFEF6C00)
 }
+
+private const val RECENT_RATINGS = 10
 
 private fun Double.roundTo10(): Double = Math.round(this / 10) * 10.0

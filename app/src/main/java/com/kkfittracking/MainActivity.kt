@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
             val intent = Intent(context, MainActivity::class.java)
                 .setAction(ACTION_START_GUIDE)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            return PendingIntent.getActivity(context, 11, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getActivity(context, RequestCodes.START_GUIDE, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }
