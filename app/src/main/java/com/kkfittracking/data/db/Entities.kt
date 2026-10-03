@@ -186,3 +186,17 @@ data class BodyMeasurementEntity(
     val updatedAt: Long,
     val deletedAt: Long? = null,
 )
+
+/** A tendon's pain (0–10) at one moment of a day (added in v9). Tendon and moment are stored by name. */
+@Entity(tableName = "tendon_pain", indices = [Index("tendon", "date")])
+data class TendonPainEntity(
+    @PrimaryKey val id: String,
+    val date: LocalDate,
+    val tendon: String,
+    val moment: String,
+    val score: Int,
+    val note: String = "",
+    val createdAt: Long,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)

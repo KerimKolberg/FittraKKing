@@ -9,6 +9,7 @@ import com.kkfittracking.data.db.CategoryEntity
 import com.kkfittracking.data.db.ExerciseEntity
 import com.kkfittracking.data.db.RoutineEntity
 import com.kkfittracking.data.db.RoutineExerciseEntity
+import com.kkfittracking.data.db.TendonPainEntity
 import com.kkfittracking.data.db.WorkoutEntity
 import com.kkfittracking.data.db.WorkoutExerciseEntity
 import com.kkfittracking.data.db.WorkoutSetEntity
@@ -44,6 +45,7 @@ class BackupRepository(
             plans = dao.routines().map { it.toDto() },
             planExercises = dao.routineExercises().map { it.toDto() },
             bodyMeasurements = dao.bodyMeasurements().map { it.toDto() },
+            tendonPain = dao.tendonPain().map { it.toDto() },
             settings = settingsRepository.settings.first().toDto(),
         )
     }
@@ -62,6 +64,7 @@ class BackupRepository(
         val routines = file.plans.map { it.toEntity() }
         val routineExercises = file.planExercises.map { it.toEntity() }
         val body = file.bodyMeasurements.map { it.toEntity() }
+        val pain = file.tendonPain.map { it.toEntity() }
         try {
             database.withTransaction {
                 dao.deleteSets()
@@ -70,6 +73,7 @@ class BackupRepository(
                 dao.deleteWorkouts()
                 dao.deleteRoutines()
                 dao.deleteBodyMeasurements()
+                dao.deleteTendonPain()
                 dao.deleteExercises()
                 dao.deleteCategories()
                 dao.insertCategories(categories)
@@ -80,6 +84,7 @@ class BackupRepository(
                 dao.insertRoutines(routines)
                 dao.insertRoutineExercises(routineExercises)
                 dao.insertBodyMeasurements(body)
+                dao.insertTendonPain(pain)
             }
         } catch (e: SQLException) {
             throw BackupException("The backup file is damaged: its data does not fit together. Nothing was changed.", e)
@@ -158,6 +163,12 @@ private fun BodyMeasurementEntity.toDto() =
 private fun BodyMeasurementDto.toEntity() = BodyMeasurementEntity(
     id, dateOf(date), enumOf<BodyMetric>(metric, "body measurement"), value, createdAt, updatedAt, deletedAt,
 )
+
+// Tendons and moments stay as names: one from a newer version is kept, and just not shown.
+private fun TendonPainEntity.toDto() =
+    TendonPainDto(id, date.toString(), tendon, moment, score, note, createdAt, updatedAt, deletedAt)
+private fun TendonPainDto.toEntity() =
+    TendonPainEntity(id, dateOf(date), tendon, moment, score, note, createdAt, updatedAt, deletedAt)
 
 private fun Settings.toDto() = SettingsDto(
     unitSystem = unitSystem.name,

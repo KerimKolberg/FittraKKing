@@ -74,14 +74,20 @@ import com.kkfittracking.R
 import com.kkfittracking.model.DayExercise
 import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.HistorySession
+import com.kkfittracking.model.PainEntry
+import com.kkfittracking.model.SetValues
 import com.kkfittracking.model.Side
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.dropStepLabel
 import com.kkfittracking.model.formatDuration
 import com.kkfittracking.model.formatSet
+import com.kkfittracking.model.isBarbellLift
+import com.kkfittracking.model.painCheck
 import com.kkfittracking.model.parseDecimal
 import com.kkfittracking.model.planProgress
+import com.kkfittracking.model.progressionSuggestion
 import com.kkfittracking.model.setLabels
+import com.kkfittracking.model.suggestedMoment
 import com.kkfittracking.model.supersetProgress
 import com.kkfittracking.timer.IntervalTimerState
 import com.kkfittracking.timer.RestTimerState
@@ -323,6 +329,25 @@ private fun TrackTab(
     val input = viewModel.input
     val units = state.units
     val isEditing = viewModel.selectedSetId != null
+    val pain by viewModel.painEntries.collectAsStateWithLifecycle()
+    var showPlates by remember { mutableStateOf(false) }
+    var ratingPain by remember { mutableStateOf(false) }
+    val exerciseTendons = state.exercise?.tendons.orEmpty()
+    if (showPlates) {
+        val kg = parseDecimal(input.weight)?.let(units::weightToKg) ?: 0.0
+        PlateCalculatorDialog(kg, state.settings.barKg, units, onDismiss = { showPlates = false })
+    }
+    if (ratingPain && exerciseTendons.isNotEmpty()) {
+        PainRatingDialog(
+            tendons = exerciseTendons,
+            initialMoment = suggestedMoment(loggedToday = state.sets.isNotEmpty()),
+            onSave = { tendons, moment, score ->
+                ratingPain = false
+                viewModel.ratePain(tendons, moment, score)
+            },
+            onDismiss = { ratingPain = false },
+        )
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -389,6 +414,9 @@ private fun TrackTab(
                         appUnits = state.settings.unitSystem,
                         onChoose = viewModel::setWeightUnit,
                     )
+                    if (type == ExerciseType.WEIGHT_REPS && isBarbellLift(state.exercise?.name.orEmpty())) {
+                        TextButton(onClick = { showPlates = true }) { Text("Plates for this weight") }
+                    }
                 }
                 if (type.usesReps) {
                     StepperField(
@@ -515,6 +543,8 @@ private fun TrackTab(
                 }
             }
         }
+
+        trainingHelp(state, type, units, pain, onUse = viewModel::applySuggestion, onRate = { ratingPain = true })
 
         item {
             HorizontalDivider()
@@ -738,4 +768,35 @@ private fun RecordBadge() {
             .size(18.dp),
         tint = MaterialTheme.colorScheme.secondary,
     )
+}
+
+/**
+ * Help before the first set: the suggested next step (held back or stepped down when a tendon
+ * hurts), warm-up sets for a heavy lift, and the tendon check.
+ */
+private fun LazyListScope.trainingHelp(
+    state: ExerciseLogUiState,
+    type: ExerciseType,
+    units: UnitSystem,
+    pain: List<PainEntry>,
+    onUse: (SetValues) -> Unit,
+    onRate: () -> Unit,
+) {
+    val exercise = state.exercise ?: return
+    val checks = exercise.tendons.mapNotNull { painCheck(it, pain) }.associateBy { it.tendon }
+    val worst = checks.values.maxOfOrNull { it.light }
+    if (state.settings.progressionHints && state.sets.isEmpty()) {
+        progressionSuggestion(type, state.plan, state.previousSession, units, worst)?.let { suggestion ->
+            item(key = "suggestion") { SuggestionCard(suggestion, type, units, onUse = { onUse(suggestion.values) }) }
+        }
+    }
+    if (state.settings.warmUpSets && type == ExerciseType.WEIGHT_REPS && state.sets.none { !it.values.isDropSet }) {
+        val work = state.plan.weightKg ?: state.previousSession?.sets?.mapNotNull { it.values.weightKg }?.maxOrNull()
+        if (work != null) {
+            item(key = "warmup") { WarmUpCard(work, state.settings.barKg, units, showPlates = isBarbellLift(exercise.name)) }
+        }
+    }
+    if (exercise.tendons.isNotEmpty()) {
+        item(key = "tendons") { TendonCheckCard(exercise.tendons, checks, onRate) }
+    }
 }

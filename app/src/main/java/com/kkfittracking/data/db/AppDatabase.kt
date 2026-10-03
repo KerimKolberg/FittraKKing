@@ -19,8 +19,9 @@ import androidx.room.migration.AutoMigrationSpec
         RoutineEntity::class,
         RoutineExerciseEntity::class,
         BodyMeasurementEntity::class,
+        TendonPainEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         // v2 adds routines and body measurements (new tables only).
@@ -37,6 +38,8 @@ import androidx.room.migration.AutoMigrationSpec
         AutoMigration(from = 6, to = 7),
         // v8 adds the side (left or right) of one-sided sets.
         AutoMigration(from = 7, to = 8),
+        // v9 adds the tendon pain log (a new table only).
+        AutoMigration(from = 8, to = 9),
     ],
 )
 @TypeConverters(Converters::class)
@@ -50,6 +53,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun bodyDao(): BodyDao
 
     abstract fun backupDao(): BackupDao
+
+    abstract fun painDao(): PainDao
 
     companion object {
         // Once the app is released, every schema change needs a Migration: never use destructive migrations.

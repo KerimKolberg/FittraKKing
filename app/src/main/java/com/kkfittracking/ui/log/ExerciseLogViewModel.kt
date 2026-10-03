@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kkfittracking.data.ExerciseRepository
 import com.kkfittracking.data.GameRepository
+import com.kkfittracking.data.PainRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.WorkoutRepository
@@ -25,6 +26,8 @@ import com.kkfittracking.model.GameStats
 import com.kkfittracking.model.GuideTarget
 import com.kkfittracking.model.HistorySession
 import com.kkfittracking.model.NextStep
+import com.kkfittracking.model.PainEntry
+import com.kkfittracking.model.PainMoment
 import com.kkfittracking.model.Routine
 import com.kkfittracking.model.SetEntry
 import com.kkfittracking.model.SetValues
@@ -32,6 +35,7 @@ import com.kkfittracking.model.Settings
 import com.kkfittracking.model.Side
 import com.kkfittracking.model.SupersetContext
 import com.kkfittracking.model.SupersetMember
+import com.kkfittracking.model.Tendon
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.XpRules
 import com.kkfittracking.model.celebrationsBetween
@@ -110,7 +114,24 @@ class ExerciseLogViewModel(
     gameRepository: GameRepository,
     private val routineRepository: RoutineRepository,
     private val guidedWorkout: GuidedWorkout,
+    private val painRepository: PainRepository,
 ) : ViewModel() {
+    /** The tendon pain log, for this exercise's tendon check and the suggestions. */
+    val painEntries: StateFlow<List<PainEntry>> =
+        painRepository.entries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Fills the fields with a suggested next set, keeping the side already chosen. */
+    fun applySuggestion(values: SetValues) {
+        val side = input.side
+        updateInput(SetInput.from(values, uiState.value.units).copy(side = side ?: values.side))
+    }
+
+    /** Rates [tendons]' pain: a morning rating is for today, the others for the screen's day. */
+    fun ratePain(tendons: List<Tendon>, moment: PainMoment, score: Int) {
+        val day = if (moment == PainMoment.MORNING) LocalDate.now() else date
+        viewModelScope.launch { tendons.forEach { painRepository.rate(it, day, moment, score) } }
+    }
+
     /** The play button's guided workout, when one runs. */
     val guide: StateFlow<GuideState> = guidedWorkout.state
 
@@ -540,6 +561,7 @@ class ExerciseLogViewModel(
                 gameRepository = container.gameRepository,
                 routineRepository = container.routineRepository,
                 guidedWorkout = container.guidedWorkout,
+                painRepository = container.painRepository,
             )
         }
     }

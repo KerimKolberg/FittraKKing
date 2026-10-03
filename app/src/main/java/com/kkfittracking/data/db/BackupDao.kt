@@ -15,6 +15,7 @@ interface BackupDao {
     @Query("SELECT * FROM routines") suspend fun routines(): List<RoutineEntity>
     @Query("SELECT * FROM routine_exercises") suspend fun routineExercises(): List<RoutineExerciseEntity>
     @Query("SELECT * FROM body_measurements") suspend fun bodyMeasurements(): List<BodyMeasurementEntity>
+    @Query("SELECT * FROM tendon_pain") suspend fun tendonPain(): List<TendonPainEntity>
 
     // Children before parents, so foreign keys never point at a deleted row.
     @Query("DELETE FROM workout_sets") suspend fun deleteSets()
@@ -23,6 +24,7 @@ interface BackupDao {
     @Query("DELETE FROM workouts") suspend fun deleteWorkouts()
     @Query("DELETE FROM routines") suspend fun deleteRoutines()
     @Query("DELETE FROM body_measurements") suspend fun deleteBodyMeasurements()
+    @Query("DELETE FROM tendon_pain") suspend fun deleteTendonPain()
     @Query("DELETE FROM exercises") suspend fun deleteExercises()
     @Query("DELETE FROM categories") suspend fun deleteCategories()
 
@@ -34,4 +36,5 @@ interface BackupDao {
     @Insert suspend fun insertRoutines(rows: List<RoutineEntity>)
     @Insert suspend fun insertRoutineExercises(rows: List<RoutineExerciseEntity>)
     @Insert suspend fun insertBodyMeasurements(rows: List<BodyMeasurementEntity>)
+    @Insert suspend fun insertTendonPain(rows: List<TendonPainEntity>)
 }

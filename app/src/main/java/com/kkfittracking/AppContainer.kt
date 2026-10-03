@@ -5,6 +5,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.kkfittracking.data.BodyRepository
 import com.kkfittracking.data.ExerciseRepository
 import com.kkfittracking.data.GameRepository
+import com.kkfittracking.data.PainRepository
 import com.kkfittracking.data.RoutineRepository
 import com.kkfittracking.data.SettingsRepository
 import com.kkfittracking.data.WorkoutRepository
@@ -51,6 +52,9 @@ class AppContainer(context: Context) {
     val routineRepository = RoutineRepository(database)
 
     val bodyRepository = BodyRepository(database.bodyDao())
+
+    /** The tendon pain log. */
+    val painRepository = PainRepository(database.painDao())
 
     val settingsRepository = SettingsRepository(appContext.settingsDataStore)
 

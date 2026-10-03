@@ -25,6 +25,7 @@ data class BackupFile(
     val plans: List<PlanDto> = emptyList(),
     val planExercises: List<PlanExerciseDto> = emptyList(),
     val bodyMeasurements: List<BodyMeasurementDto> = emptyList(),
+    val tendonPain: List<TendonPainDto> = emptyList(),
     val settings: SettingsDto? = null,
 ) {
     companion object {
@@ -154,6 +155,19 @@ data class BodyMeasurementDto(
     val date: String,
     val metric: String,
     val value: Double,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val deletedAt: Long? = null,
+)
+
+@Serializable
+data class TendonPainDto(
+    val id: String,
+    val date: String,
+    val tendon: String,
+    val moment: String,
+    val score: Int,
+    val note: String = "",
     val createdAt: Long,
     val updatedAt: Long,
     val deletedAt: Long? = null,
