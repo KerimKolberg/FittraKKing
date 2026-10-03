@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">KK-Fittracking</string>
+    <string name="widget_title">Today</string>
+    <string name="widget_start">▶ Start</string>
+    <string name="widget_description">Today\'s plan, what is left, and a button to start the guided workout</string>
 </resources>

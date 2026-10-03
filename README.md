@@ -36,7 +36,14 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 - **Graphs & records** (menu): any exercise's progress by date (heaviest weight, estimated 1RM, volume, reps, time, distance…) and your body tracker values (bodyweight, body fat, measurements), over 1 month, 3 months, 1 year or everything, with all-time high and low; plus every exercise's personal record, newest first, one tap from its graph
 - **Gamification**: XP and levels, a weekly goal with streaks, 17 achievements, and celebrations when you hit a record
 - **Body tracker**: bodyweight, body fat and body measurements with graphs
-- **Your data**: back up to a file (e.g. on Google Drive) and restore it on any phone; export workouts and body measurements as CSV
+- **Your data**: one tap saves a backup plus workouts and body measurements as CSV to **Downloads/KK-Fittracking**, dated in their names (e.g. `KK-Fittracking_backup_2026-10-03_14-30.json`); an automatic daily or weekly backup goes to the same folder (the newest 8 are kept). Copy the folder to Google Drive or a computer now and then. "Save as…" still lets you pick any place, and Restore opens in that folder
+- **Tendon pain log**: rate a tendon's pain 0–10 before and after training and the next morning; a green, yellow or red light tells you to add load, hold, or step back (the pain-monitoring model physios use). A morning card asks about yesterday's tendons
+- **Suggestions**: the next weight, reps or hold time from your last session (all sets made: add the smallest jump; not yet: one more rep), held back or stepped down when a tendon hurts
+- **Warm-up sets and plates**: lighter ramp-up sets before heavy lifts with the plates per side, and a plate calculator for any weight (bar weight in Settings)
+- **Training load & tendons** (menu): sets per muscle this week as a coloured map, tendons loaded, this week's load against your usual week (flags sudden jumps), and areas you haven't trained in two weeks
+- **Sport warm-ups**: 5–8 minute warm-ups for gym, kickboxing, volleyball, climbing, tennis, swimming and running, put at the top of the day and started in the guided workout with one tap
+- **Reminders**: a notification on the days and time you choose, with what's planned and a Start button
+- **Home-screen widget**: today's plan, how much is done, what's left, and ▶ Start
 
 ## Try it on your phone
 

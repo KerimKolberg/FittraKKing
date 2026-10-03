@@ -63,6 +63,18 @@
                 android:value="Guided workout: shows the exercise to do next, the training time and pause and stop buttons" />
         </service>
 
+        <!-- The home-screen widget: today's plan and a start button. -->
+        <receiver
+            android:name=".background.TodayWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_info" />
+        </receiver>
+
         <!-- Commands from the watch app over the Wear OS Data Layer. -->
         <service
             android:name=".guide.PhoneWearListenerService"

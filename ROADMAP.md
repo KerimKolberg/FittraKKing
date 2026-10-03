@@ -44,14 +44,14 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Backup/restore to a local file / Google Drive (via the Android file picker)
 - [x] CSV export
 - [x] Set notes
-- [ ] Plate calculator
+- [x] Plate calculator
 
 ### Nice-to-have / custom (Phase 5)
 - [ ] Features found missing after real use, to be added here
 - [x] Supersets / circuits (Phase 2c)
 - [x] RPE per set
-- [ ] Progression suggestions
-- [ ] Home-screen widget
+- [x] Progression suggestions
+- [x] Home-screen widget
 - [x] Wear OS companion (Galaxy Watch, Pixel Watch): the guided workout on the wrist (next exercise, log weight and reps, rest countdown with a buzz, pause, skip and stop, start today's plan), synced with the phone over Bluetooth through the Wear OS Data Layer; stays on screen dimmed (always-on)
 - [x] On the watch: live heart rate (saved with each set), a Workout tile, every exercise type (distance, height, effort, rounds), and recording cardio and sessions with the watch's sensors (time, GPS distance, steps, heart rate, calories)
 - [x] Sports and athletic training: bouldering, kickboxing, boxing, sprinting, hill sprints, heavy bag and shadow boxing rounds, and about 55 prehab and power exercises for court sports, climbing, sprinting and fighting (pelvic drops, clamshell holds, ankle eversion, balance holds, Y-T-W, sleeper stretch, hangboard, no-hang lifts, finger extensions, rotational throws…); peroneal and hip flexor tendons; starter plans for court sports, climbing, sprint & jump and kickboxing
@@ -70,6 +70,12 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Left and right sets for one-sided exercises (phone and watch): both sides make one set in plans, supersets and the guide (database version 8)
 - [x] Finished workouts written to Health Connect (at the end of a guided workout, or from a day's menu): gym blocks as strength training, runs, rides and sports sessions as their own workouts; sending a day again replaces it
 - [x] Calorie estimate per day and at the end of a workout (MET × bodyweight × time; the watch's measured calories when it recorded the activity); optionally sent to Health Connect
+- [x] Downloads/KK-Fittracking: dated backups and CSV files in one tap, automatic daily or weekly backups (newest 8 kept), restore opening in that folder
+- [x] Tendon pain log (database version 9): pain 0–10 before, after and the next morning; green/yellow/red per tendon after the pain-monitoring model; morning check card; in backups
+- [x] Progression suggestions, warm-up sets with plates per side, plate calculator, bar weight setting
+- [x] Training load & tendons screen: weekly sets per muscle (coloured map) and tendon, this week against the usual week, forgotten areas
+- [x] Sport warm-ups started in the guided workout, training reminders with a Start button, home-screen widget
+- [x] Health Connect activity types match whole words ("Supine Spinal Twist" is no spin class)
 - [ ] Maybe later: iPhone version (Kotlin Multiplatform + Compose Multiplatform; HealthKit; a separate Apple Watch app)
 - [x] Health Connect: read daily steps that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
 - [ ] Cloud sync + accounts (see "Keeping the door open for cloud sync")
