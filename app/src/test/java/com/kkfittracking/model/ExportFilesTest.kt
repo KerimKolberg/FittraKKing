@@ -11,10 +11,18 @@ class ExportFilesTest {
 
     @Test
     fun filesAreNamedByAppKindAndDate() {
-        assertEquals("KK-Fittracking_backup_2026-10-03_14-30.json", ExportFile.BACKUP.fileName(at))
-        assertEquals("KK-Fittracking_workouts_2026-10-03_14-30.csv", ExportFile.WORKOUTS.fileName(at))
-        assertEquals("KK-Fittracking_body_2026-10-03_14-30.csv", ExportFile.BODY.fileName(at))
-        assertEquals("KK-Fittracking_auto-backup_2026-10-03_14-30.json", ExportFile.AUTO_BACKUP.fileName(at))
+        assertEquals("FitTraKKing_backup_2026-10-03_14-30.json", ExportFile.BACKUP.fileName(at))
+        assertEquals("FitTraKKing_workouts_2026-10-03_14-30.csv", ExportFile.WORKOUTS.fileName(at))
+        assertEquals("FitTraKKing_body_2026-10-03_14-30.csv", ExportFile.BODY.fileName(at))
+        assertEquals("FitTraKKing_auto-backup_2026-10-03_14-30.json", ExportFile.AUTO_BACKUP.fileName(at))
+    }
+
+    @Test
+    fun filesFromTheOldNameGetTheNewOne() {
+        assertEquals("FitTraKKing_backup_2026-10-03_14-30.json", renamedFromOldName("KK-Fittracking_backup_2026-10-03_14-30.json"))
+        assertEquals("FitTraKKing_auto-backup_2026-09-01_03-00.json", renamedFromOldName("KK-Fittracking_auto-backup_2026-09-01_03-00.json"))
+        // Files named by hand keep their names.
+        assertEquals("my backup.json", renamedFromOldName("my backup.json"))
     }
 
     @Test

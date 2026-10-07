@@ -13,7 +13,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import com.kkfittracking.KKFittrackingApplication
+import com.kkfittracking.FitTraKKingApplication
 import com.kkfittracking.R
 import com.kkfittracking.RequestCodes
 import com.kkfittracking.openAppIntent
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
  */
 class WorkoutGuideService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val guide: GuidedWorkout get() = (application as KKFittrackingApplication).container.guidedWorkout
+    private val guide: GuidedWorkout get() = (application as FitTraKKingApplication).container.guidedWorkout
     private var watching = false
 
     override fun onBind(intent: Intent?): IBinder? = null

@@ -3,7 +3,7 @@ package com.kkfittracking.model
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-/** How often a backup is saved to Downloads/KK-Fittracking by itself. */
+/** How often a backup is saved to Downloads/FitTraKKing by itself. */
 enum class AutoBackup(val label: String, val days: Long?) {
     OFF("Off", null),
     DAILY("Daily", 1),
@@ -11,8 +11,8 @@ enum class AutoBackup(val label: String, val days: Long?) {
 }
 
 /**
- * The files saved to Downloads/KK-Fittracking: named with what they hold and when they were made,
- * so they sort by kind and then by date, e.g. "KK-Fittracking_backup_2026-10-03_14-30.json".
+ * The files saved to Downloads/FitTraKKing: named with what they hold and when they were made,
+ * so they sort by kind and then by date, e.g. "FitTraKKing_backup_2026-10-03_14-30.json".
  */
 enum class ExportFile(val kind: String, val extension: String, val mimeType: String) {
     BACKUP("backup", "json", "application/json"),
@@ -27,10 +27,13 @@ enum class ExportFile(val kind: String, val extension: String, val mimeType: Str
     val namePrefix: String get() = "${PREFIX}_${kind}_"
 
     companion object {
-        const val PREFIX = "KK-Fittracking"
+        const val PREFIX = "FitTraKKing"
 
         /** The folder inside Downloads. */
-        const val FOLDER = "KK-Fittracking"
+        const val FOLDER = "FitTraKKing"
+
+        /** The app's name before it became FitTraKKing: its folder and file names are moved over once. */
+        const val OLD_NAME = "KK-Fittracking"
 
         /** Automatic backups kept; older ones are deleted. Backups saved by hand are never deleted. */
         const val AUTO_BACKUPS_KEPT = 8
@@ -42,3 +45,7 @@ enum class ExportFile(val kind: String, val extension: String, val mimeType: Str
 /** Of the automatic backups' file names, the ones to delete so that only the newest [keep] stay. */
 fun autoBackupsToDelete(names: List<String>, keep: Int = ExportFile.AUTO_BACKUPS_KEPT): List<String> =
     names.filter { it.startsWith(ExportFile.AUTO_BACKUP.namePrefix) }.sortedDescending().drop(keep)
+
+/** A file's name in the new folder: "KK-Fittracking_backup_…" becomes "FitTraKKing_backup_…"; others stay as they are. */
+fun renamedFromOldName(name: String): String =
+    if (name.startsWith(ExportFile.OLD_NAME + "_")) ExportFile.PREFIX + name.removePrefix(ExportFile.OLD_NAME) else name

@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.LocalDateTime
 
-/** Reads and writes backup and export files: picked with the system file picker, or in Downloads/KK-Fittracking. */
+/** Reads and writes backup and export files: picked with the system file picker, or in Downloads/FitTraKKing. */
 class DataTransfer(
     private val context: Context,
     private val backups: BackupRepository,
@@ -45,8 +45,11 @@ class DataTransfer(
 
     val canSaveToDownloads: Boolean get() = downloads.isAvailable
 
+    /** Moves backups from the folder of the app's old name to Downloads/FitTraKKing. */
+    suspend fun moveOldBackups(): Int = downloads.moveFromOldFolder()
+
     /**
-     * One tap: a backup and both spreadsheets, saved to Downloads/KK-Fittracking with today's date
+     * One tap: a backup and both spreadsheets, saved to Downloads/FitTraKKing with today's date
      * and time in their names. Returns the folder they are in.
      */
     suspend fun saveAllToDownloads(): String {
@@ -58,7 +61,7 @@ class DataTransfer(
         return downloads.shownPath
     }
 
-    /** The automatic backup: a dated file in Downloads/KK-Fittracking; only the newest few are kept. */
+    /** The automatic backup: a dated file in Downloads/FitTraKKing; only the newest few are kept. */
     suspend fun autoBackup() {
         val file = ExportFile.AUTO_BACKUP
         downloads.save(file.fileName(LocalDateTime.now()), file.mimeType, backupText())

@@ -17,7 +17,7 @@ import com.kkfittracking.ui.AppNavHost
 import com.kkfittracking.ui.ExerciseLogRoute
 import com.kkfittracking.ui.components.formatFullDate
 import com.kkfittracking.ui.guide.GuideSummaryDialog
-import com.kkfittracking.ui.theme.KKFittrackingTheme
+import com.kkfittracking.ui.theme.FitTraKKingTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val container = (application as KKFittrackingApplication).container
+        val container = (application as FitTraKKingApplication).container
         if (savedInstanceState == null) handle(intent)
         enableEdgeToEdge()
         setContent {
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
-            KKFittrackingTheme(darkTheme = darkTheme) {
+            FitTraKKingTheme(darkTheme = darkTheme) {
                 val open by openRequest.collectAsStateWithLifecycle()
                 AppNavHost(openRequest = open, onOpened = { openRequest.value = null })
                 val guideSummary by container.guidedWorkout.summary.collectAsStateWithLifecycle()
@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
     /** Opens the exercise the intent names, or starts today's guided workout (widget, reminder). */
     private fun handle(intent: Intent?) {
         if (intent?.action == ACTION_START_GUIDE) {
-            val container = (application as KKFittrackingApplication).container
+            val container = (application as FitTraKKingApplication).container
             val today = LocalDate.now()
             container.appScope.launch {
                 val target = if (container.guidedWorkout.state.value.isActiveOn(today)) {

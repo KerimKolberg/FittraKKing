@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class KKFittrackingApplication : Application() {
+class FitTraKKingApplication : Application() {
     lateinit var container: AppContainer
         private set
 
@@ -22,15 +22,17 @@ class KKFittrackingApplication : Application() {
         container = AppContainer(this)
         container.appScope.launch { container.exerciseRepository.syncBuiltIns() }
         container.watchBridge.start()
+        // The app was called KK-Fittracking: move its backups to the new folder once (later starts find none).
+        container.appScope.launch { runCatching { container.dataTransfer.moveOldBackups() } }
         // Automatic backups and reminders follow the settings.
         container.appScope.launch {
             container.settingsRepository.settings.map { it.autoBackup }.distinctUntilChanged()
-                .collect { BackgroundWork.scheduleAutoBackup(this@KKFittrackingApplication, it) }
+                .collect { BackgroundWork.scheduleAutoBackup(this@FitTraKKingApplication, it) }
         }
         container.appScope.launch {
             container.settingsRepository.settings.distinctUntilChanged { a, b ->
                 a.reminderDays == b.reminderDays && a.reminderMinute == b.reminderMinute
-            }.collect { BackgroundWork.scheduleReminder(this@KKFittrackingApplication, it) }
+            }.collect { BackgroundWork.scheduleReminder(this@FitTraKKingApplication, it) }
         }
         // The home-screen widget follows today's log while the app runs (and refreshes itself every 30 minutes).
         container.appScope.launch {
@@ -41,7 +43,7 @@ class KKFittrackingApplication : Application() {
                 }
             }.distinctUntilChanged()
                 .flatMapLatest { container.workoutRepository.observeDay(it) }
-                .collect { TodayWidget.update(this@KKFittrackingApplication, it) }
+                .collect { TodayWidget.update(this@FitTraKKingApplication, it) }
         }
     }
 }

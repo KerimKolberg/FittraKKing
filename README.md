@@ -1,4 +1,6 @@
-# KK-Fittracking
+# FitTraKKing
+
+_Formerly KK-Fittracking. Updating keeps all your data, and backups in Downloads/KK-Fittracking move to Downloads/FitTraKKing by themselves._
 
 A gym workout tracker for Android, inspired by FitNotes. Works fully offline: all data stays on your phone.
 
@@ -36,7 +38,7 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 - **Graphs & records** (menu): any exercise's progress by date (heaviest weight, estimated 1RM, volume, reps, time, distance…) and your body tracker values (bodyweight, body fat, measurements), over 1 month, 3 months, 1 year or everything, with all-time high and low; plus every exercise's personal record, newest first, one tap from its graph
 - **Gamification**: XP and levels, a weekly goal with streaks, 17 achievements, and celebrations when you hit a record
 - **Body tracker**: bodyweight, body fat and body measurements with graphs
-- **Your data**: one tap saves a backup plus workouts and body measurements as CSV to **Downloads/KK-Fittracking**, dated in their names (e.g. `KK-Fittracking_backup_2026-10-03_14-30.json`); an automatic daily or weekly backup goes to the same folder (the newest 8 are kept). Copy the folder to Google Drive or a computer now and then. "Save as…" still lets you pick any place, and Restore opens in that folder
+- **Your data**: one tap saves a backup plus workouts and body measurements as CSV to **Downloads/FitTraKKing**, dated in their names (e.g. `FitTraKKing_backup_2026-10-03_14-30.json`); an automatic daily or weekly backup goes to the same folder (the newest 8 are kept). Copy the folder to Google Drive or a computer now and then. "Save as…" still lets you pick any place, and Restore opens in that folder
 - **Tendon pain log**: rate a tendon's pain 0–10 before and after training and the next morning; a green, yellow or red light tells you to add load, hold, or step back (the pain-monitoring model physios use). A morning card asks about yesterday's tendons
 - **Suggestions**: the next weight, reps or hold time from your last session (all sets made: add the smallest jump; not yet: one more rep), held back or stepped down when a tendon hurts
 - **Warm-up sets and plates**: lighter ramp-up sets before heavy lifts with the plates per side, and a plate calculator for any weight (bar weight in Settings)
@@ -50,10 +52,10 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 Every push builds a debug APK on GitHub:
 
 1. Open the repository's **Actions** tab and pick the latest green **Android build** run.
-2. Download the **KK-Fittracking-phone-debug-apk** artifact and unzip it. Wait until the download is complete: a
+2. Download the **FitTraKKing-phone-debug-apk** artifact and unzip it. Wait until the download is complete: a
    cut-off file shows no app icon and Android says there is a problem with the app file.
-3. Open `KK-Fittracking-phone-debug.apk` on the phone (allow "Install unknown apps" when asked).
-   `KK-Fittracking-watch-debug.apk` (in the watch artifact) is for the watch only.
+3. Open `FitTraKKing-phone-debug.apk` on the phone (allow "Install unknown apps" when asked).
+   `FitTraKKing-watch-debug.apk` (in the watch artifact) is for the watch only.
 
 Builds are signed with the shared debug key in `signing/`, so a newer build installs over an older one.
 (Builds from before the watch app used a different key each time: back up in Settings, uninstall once,
@@ -70,13 +72,13 @@ shows the exercise and progress at a glance (long-press the watch face or swipe 
 On first start the watch asks for heart rate, physical activity and location; each one is optional. It talks to the phone
 over Bluetooth (or Wi-Fi) through the Wear OS Data Layer; the phone keeps all the data.
 
-1. Download the **KK-Fittracking-watch-debug-apk** artifact from the same run as the phone APK, and unzip it.
+1. Download the **FitTraKKing-watch-debug-apk** artifact from the same run as the phone APK, and unzip it.
 2. On the watch: Settings → About watch → Software → tap *Software version* 5 times to turn on Developer
    options; then in Developer options turn on *ADB debugging* and *Wireless debugging* (same Wi-Fi as the computer).
 3. Pair and install from a computer with `adb pair <ip:port>` (the pairing code is on the watch),
-   `adb connect <ip:port>`, then `adb install KK-Fittracking-watch-debug.apk`. Without a computer, a phone app such as
+   `adb connect <ip:port>`, then `adb install FitTraKKing-watch-debug.apk`. Without a computer, a phone app such as
    Bugjaeger or Wear Installer can install the APK over the same Wi-Fi.
-4. Open KK-Fittracking on the phone once, then on the watch. Start a workout from either one.
+4. Open FitTraKKing on the phone once, then on the watch. Start a workout from either one.
 
 ## Build it yourself
 

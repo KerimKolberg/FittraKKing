@@ -41,7 +41,7 @@ class WorkoutTileService : TileService() {
     private fun layout(state: WatchState?, device: DeviceParameters): LayoutElementBuilders.LayoutElement {
         val (label, title, detail) = when {
             state == null || !state.active -> Triple(
-                "KK-Fittracking",
+                "FitTraKKing",
                 "No workout",
                 state?.exercisesToday?.takeIf { it > 0 }?.let { "Today: $it exercises" } ?: "Nothing planned today",
             )

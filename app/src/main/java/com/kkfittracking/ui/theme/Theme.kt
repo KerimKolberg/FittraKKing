@@ -29,7 +29,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun KKFittrackingTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
+fun FitTraKKingTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         content = content,

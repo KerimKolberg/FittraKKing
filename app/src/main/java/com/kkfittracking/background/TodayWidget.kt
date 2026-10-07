@@ -6,7 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.view.View
 import android.widget.RemoteViews
-import com.kkfittracking.KKFittrackingApplication
+import com.kkfittracking.FitTraKKingApplication
 import com.kkfittracking.MainActivity
 import com.kkfittracking.R
 import com.kkfittracking.RequestCodes
@@ -21,7 +21,7 @@ import java.time.LocalDate
 class TodayWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         val pending = goAsync()
-        val container = (context.applicationContext as KKFittrackingApplication).container
+        val container = (context.applicationContext as FitTraKKingApplication).container
         container.appScope.launch {
             try {
                 val day = container.workoutRepository.observeDay(LocalDate.now()).first()

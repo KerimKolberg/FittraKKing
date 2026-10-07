@@ -93,7 +93,7 @@ private fun Connecting(viewModel: WatchViewModel) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = if (viewModel.connection == Connection.NO_PHONE) {
-                "Phone not found. Keep Bluetooth on and KK-Fittracking installed on the phone."
+                "Phone not found. Keep Bluetooth on and FitTraKKing installed on the phone."
             } else {
                 "Connecting to your phone…"
             },
@@ -410,7 +410,7 @@ private fun AmbientScreen(state: WatchState?) {
     Box(Modifier.fillMaxSize().background(Color.Black).padding(24.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
-                state == null || !state.active -> Text("KK-Fittracking", color = Color.White)
+                state == null || !state.active -> Text("FitTraKKing", color = Color.White)
                 state.paused -> Text("Paused", color = Color.White)
                 state.allDone -> Text("All done", color = Color.White)
                 else -> {

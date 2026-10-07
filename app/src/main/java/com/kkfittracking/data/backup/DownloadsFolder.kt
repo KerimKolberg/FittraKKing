@@ -9,12 +9,13 @@ import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import com.kkfittracking.model.ExportFile
 import com.kkfittracking.model.autoBackupsToDelete
+import com.kkfittracking.model.renamedFromOldName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
 /**
- * Downloads/KK-Fittracking: files saved there without a file picker, through MediaStore (Android 10
+ * Downloads/FitTraKKing: files saved there without a file picker, through MediaStore (Android 10
  * and later, no storage permission needed). They stay when the app is uninstalled.
  */
 class DownloadsFolder(private val context: Context) {
@@ -33,6 +34,41 @@ class DownloadsFolder(private val context: Context) {
     /** Deletes all but the newest automatic backups this app saved. */
     suspend fun pruneAutoBackups() = withContext(Dispatchers.IO) {
         if (isAvailable) pruneQ()
+    }
+
+    /**
+     * Moves the backups and exports from Downloads/KK-Fittracking (the app's old name) to
+     * Downloads/FitTraKKing, with the new name in front. Only files this installation of the app
+     * saved can be moved; others stay where they are. Returns how many were moved.
+     */
+    suspend fun moveFromOldFolder(): Int = withContext(Dispatchers.IO) {
+        if (isAvailable) moveQ() else 0
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun moveQ(): Int {
+        val resolver = context.contentResolver
+        val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        val old = mutableMapOf<Long, String>()
+        resolver.query(
+            collection,
+            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME),
+            "${MediaStore.MediaColumns.RELATIVE_PATH} = ?",
+            arrayOf(OLD_RELATIVE_PATH),
+            null,
+        )?.use { cursor ->
+            val id = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val name = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+            while (cursor.moveToNext()) old[cursor.getLong(id)] = cursor.getString(name)
+        }
+        return old.count { (id, name) ->
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, RELATIVE_PATH)
+                put(MediaStore.MediaColumns.DISPLAY_NAME, renamedFromOldName(name))
+            }
+            // A file another app (or an earlier installation) saved cannot be moved; it stays.
+            runCatching { resolver.update(ContentUris.withAppendedId(collection, id), values, null, null) > 0 }.getOrDefault(false)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -81,5 +117,6 @@ class DownloadsFolder(private val context: Context) {
 
     companion object {
         private val RELATIVE_PATH = "${Environment.DIRECTORY_DOWNLOADS}/${ExportFile.FOLDER}/"
+        private val OLD_RELATIVE_PATH = "${Environment.DIRECTORY_DOWNLOADS}/${ExportFile.OLD_NAME}/"
     }
 }

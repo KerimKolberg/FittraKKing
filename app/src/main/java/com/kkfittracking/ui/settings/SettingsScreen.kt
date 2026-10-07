@@ -362,7 +362,7 @@ fun SettingsScreen(
 
             SectionTitle("Your data")
             Text(
-                text = "Everything is stored only on this phone. Backups go to Downloads/KK-Fittracking with the " +
+                text = "Everything is stored only on this phone. Backups go to Downloads/FitTraKKing with the " +
                     "date in their names; copy that folder to Google Drive or a computer now and then, so you can " +
                     "restore on a new phone.",
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -377,7 +377,7 @@ fun SettingsScreen(
             )
             if (viewModel.canSaveToDownloads) {
                 ActionRow(
-                    "Save to Downloads/KK-Fittracking",
+                    "Save to Downloads/FitTraKKing",
                     "A backup plus workouts and body measurements as CSV, dated, in one tap",
                     viewModel.isBusy,
                 ) { viewModel.saveAllToDownloads() }
@@ -532,7 +532,7 @@ private fun RadioRow(label: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** The file picker for restoring, opened in Downloads/KK-Fittracking where the backups are. */
+/** The file picker for restoring, opened in Downloads/FitTraKKing where the backups are. */
 private class OpenInAppFolder : ActivityResultContracts.OpenDocument() {
     override fun createIntent(context: Context, input: Array<String>): Intent {
         val folder = DocumentsContract.buildDocumentUri(

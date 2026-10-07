@@ -48,14 +48,14 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: KK-Fittracking-phone-debug-apk
+          name: FitTraKKing-phone-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
       - name: Upload watch debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: KK-Fittracking-watch-debug-apk
+          name: FitTraKKing-watch-debug-apk
           path: wear/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
@@ -63,5 +63,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: KK-Fittracking-test-reports
+          name: FitTraKKing-test-reports
           path: app/build/reports/tests/

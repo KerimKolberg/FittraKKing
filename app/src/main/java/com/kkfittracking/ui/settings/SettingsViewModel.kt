@@ -102,7 +102,7 @@ class SettingsViewModel(
 
     fun backUp(uri: Uri) = perform("Backup saved") { dataTransfer.writeBackup(uri) }
 
-    /** Android 10 and later: files go straight to Downloads/KK-Fittracking. */
+    /** Android 10 and later: files go straight to Downloads/FitTraKKing. */
     val canSaveToDownloads: Boolean get() = dataTransfer.canSaveToDownloads
 
     fun saveAllToDownloads() {

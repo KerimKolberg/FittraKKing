@@ -212,9 +212,9 @@ object BackupJson {
         val file = try {
             json.decodeFromString(BackupFile.serializer(), text)
         } catch (e: SerializationException) {
-            throw BackupException("This is not a KK-Fittracking backup file, or it is damaged.", e)
+            throw BackupException("This is not a FitTraKKing backup file, or it is damaged.", e)
         } catch (e: IllegalArgumentException) {
-            throw BackupException("This is not a KK-Fittracking backup file, or it is damaged.", e)
+            throw BackupException("This is not a FitTraKKing backup file, or it is damaged.", e)
         }
         if (file.formatVersion > BackupFile.CURRENT_FORMAT_VERSION) {
             throw BackupException("This backup was made by a newer version of the app. Update the app first.")

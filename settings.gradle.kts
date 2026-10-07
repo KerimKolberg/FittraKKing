@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KK-Fittracking"
+rootProject.name = "FitTraKKing"
 include(":app")
 include(":wear")
 include(":wearprotocol")

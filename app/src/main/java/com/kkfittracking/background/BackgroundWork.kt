@@ -13,7 +13,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.kkfittracking.KKFittrackingApplication
+import com.kkfittracking.FitTraKKingApplication
 import com.kkfittracking.MainActivity
 import com.kkfittracking.R
 import com.kkfittracking.RequestCodes
@@ -35,7 +35,7 @@ object BackgroundWork {
     private const val AUTO_BACKUP = "auto_backup"
     private const val REMINDER = "training_reminder"
 
-    /** Saves a backup to Downloads/KK-Fittracking every day or week, or stops doing so. */
+    /** Saves a backup to Downloads/FitTraKKing every day or week, or stops doing so. */
     fun scheduleAutoBackup(context: Context, frequency: AutoBackup) {
         val work = WorkManager.getInstance(context)
         val days = frequency.days
@@ -66,7 +66,7 @@ object BackgroundWork {
 
 class AutoBackupWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val container = (applicationContext as KKFittrackingApplication).container
+        val container = (applicationContext as FitTraKKingApplication).container
         return try {
             container.dataTransfer.autoBackup()
             Result.success()
@@ -82,7 +82,7 @@ class AutoBackupWorker(context: Context, params: WorkerParameters) : CoroutineWo
 /** "Time to train": what today holds, with a button that starts the guided workout. */
 class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val container = (applicationContext as KKFittrackingApplication).container
+        val container = (applicationContext as FitTraKKingApplication).container
         val settings = container.settingsRepository.settings.first()
         val day = container.workoutRepository.observeDay(LocalDate.now()).first()
         // Not started or only partly done, as the day screen and the widget count it.

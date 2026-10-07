@@ -1,4 +1,4 @@
 <resources>
     <!-- Window theme only; the app's colors come from the Compose theme in ui/theme/Theme.kt. -->
-    <style name="Theme.KKFittracking" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.FitTraKKing" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

@@ -1,4 +1,4 @@
-# KK-Fittracking — Roadmap
+# FitTraKKing — Roadmap
 
 A customized Android gym workout tracker inspired by FitNotes, published on Google Play.
 
@@ -70,12 +70,13 @@ v1 is fully offline, but the data layer follows these rules so sync/accounts can
 - [x] Left and right sets for one-sided exercises (phone and watch): both sides make one set in plans, supersets and the guide (database version 8)
 - [x] Finished workouts written to Health Connect (at the end of a guided workout, or from a day's menu): gym blocks as strength training, runs, rides and sports sessions as their own workouts; sending a day again replaces it
 - [x] Calorie estimate per day and at the end of a workout (MET × bodyweight × time; the watch's measured calories when it recorded the activity); optionally sent to Health Connect
-- [x] Downloads/KK-Fittracking: dated backups and CSV files in one tap, automatic daily or weekly backups (newest 8 kept), restore opening in that folder
+- [x] Downloads/FitTraKKing: dated backups and CSV files in one tap, automatic daily or weekly backups (newest 8 kept), restore opening in that folder
 - [x] Tendon pain log (database version 9): pain 0–10 before, after and the next morning; green/yellow/red per tendon after the pain-monitoring model; morning check card; in backups
 - [x] Progression suggestions, warm-up sets with plates per side, plate calculator, bar weight setting
 - [x] Training load & tendons screen: weekly sets per muscle (coloured map) and tendon, this week against the usual week, forgotten areas
 - [x] Sport warm-ups started in the guided workout, training reminders with a Start button, home-screen widget
 - [x] Health Connect activity types match whole words ("Supine Spinal Twist" is no spin class)
+- [x] Renamed to FitTraKKing (phone and watch); backups in Downloads/KK-Fittracking move to Downloads/FitTraKKing by themselves. The app ID stays com.kkfittracking, so the update keeps all data
 - [ ] Maybe later: iPhone version (Kotlin Multiplatform + Compose Multiplatform; HealthKit; a separate Apple Watch app)
 - [x] Health Connect: read daily steps that Samsung Health, Google Fit, Fitbit and watches already record; write finished workouts back so they show up in those apps
 - [ ] Cloud sync + accounts (see "Keeping the door open for cloud sync")

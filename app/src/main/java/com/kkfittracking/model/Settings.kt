@@ -82,7 +82,7 @@ data class Settings(
     val sendWorkoutsToHealth: Boolean = true,
     /** The estimated calories go along; off, as a watch that counts calories all day would count them twice. */
     val sendCaloriesToHealth: Boolean = false,
-    /** A backup saved to Downloads/KK-Fittracking by itself. */
+    /** A backup saved to Downloads/FitTraKKing by itself. */
     val autoBackup: AutoBackup = AutoBackup.WEEKLY,
     /** Days with a training reminder; empty for none. */
     val reminderDays: Set<DayOfWeek> = emptySet(),
