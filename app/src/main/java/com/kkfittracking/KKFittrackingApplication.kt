@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class FitnessApplication : Application() {
+class KKFittrackingApplication : Application() {
     lateinit var container: AppContainer
         private set
 
@@ -25,12 +25,12 @@ class FitnessApplication : Application() {
         // Automatic backups and reminders follow the settings.
         container.appScope.launch {
             container.settingsRepository.settings.map { it.autoBackup }.distinctUntilChanged()
-                .collect { BackgroundWork.scheduleAutoBackup(this@FitnessApplication, it) }
+                .collect { BackgroundWork.scheduleAutoBackup(this@KKFittrackingApplication, it) }
         }
         container.appScope.launch {
             container.settingsRepository.settings.distinctUntilChanged { a, b ->
                 a.reminderDays == b.reminderDays && a.reminderMinute == b.reminderMinute
-            }.collect { BackgroundWork.scheduleReminder(this@FitnessApplication, it) }
+            }.collect { BackgroundWork.scheduleReminder(this@KKFittrackingApplication, it) }
         }
         // The home-screen widget follows today's log while the app runs (and refreshes itself every 30 minutes).
         container.appScope.launch {
@@ -41,7 +41,7 @@ class FitnessApplication : Application() {
                 }
             }.distinctUntilChanged()
                 .flatMapLatest { container.workoutRepository.observeDay(it) }
-                .collect { TodayWidget.update(this@FitnessApplication, it) }
+                .collect { TodayWidget.update(this@KKFittrackingApplication, it) }
         }
     }
 }

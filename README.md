@@ -50,7 +50,7 @@ See [ROADMAP.md](ROADMAP.md) for the plan and progress.
 Every push builds a debug APK on GitHub:
 
 1. Open the repository's **Actions** tab and pick the latest green **Android build** run.
-2. Download the **fitness-app-debug-apk** artifact and unzip it. Wait until the download is complete: a
+2. Download the **KK-Fittracking-phone-debug-apk** artifact and unzip it. Wait until the download is complete: a
    cut-off file shows no app icon and Android says there is a problem with the app file.
 3. Open `KK-Fittracking-phone-debug.apk` on the phone (allow "Install unknown apps" when asked).
    `KK-Fittracking-watch-debug.apk` (in the watch artifact) is for the watch only.
@@ -70,7 +70,7 @@ shows the exercise and progress at a glance (long-press the watch face or swipe 
 On first start the watch asks for heart rate, physical activity and location; each one is optional. It talks to the phone
 over Bluetooth (or Wi-Fi) through the Wear OS Data Layer; the phone keeps all the data.
 
-1. Download the **fitness-app-watch-debug-apk** artifact from the same run as the phone APK, and unzip it.
+1. Download the **KK-Fittracking-watch-debug-apk** artifact from the same run as the phone APK, and unzip it.
 2. On the watch: Settings → About watch → Software → tap *Software version* 5 times to turn on Developer
    options; then in Developer options turn on *ADB debugging* and *Wireless debugging* (same Wi-Fi as the computer).
 3. Pair and install from a computer with `adb pair <ip:port>` (the pairing code is on the watch),

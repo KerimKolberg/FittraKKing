@@ -7,14 +7,14 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kkfittracking.AppContainer
-import com.kkfittracking.FitnessApplication
+import com.kkfittracking.KKFittrackingApplication
 
 /** Builds a ViewModel factory that has access to the [AppContainer]. */
 inline fun <reified VM : ViewModel> appViewModelFactory(
     crossinline create: CreationExtras.(AppContainer) -> VM,
 ): ViewModelProvider.Factory = viewModelFactory {
     initializer {
-        val application = checkNotNull(this[APPLICATION_KEY]) as FitnessApplication
+        val application = checkNotNull(this[APPLICATION_KEY]) as KKFittrackingApplication
         create(application.container)
     }
 }

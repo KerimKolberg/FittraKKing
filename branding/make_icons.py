@@ -13,12 +13,14 @@ import os
 from PIL import Image
 
 LOGO = "branding/logo.jpg"
-RES = "app/src/main/res"
+# The phone and the watch use the same icon.
+RES_FOLDERS = ["app/src/main/res", "wear/src/main/res"]
 BACKGROUND = (16, 31, 50)  # #101F32, the logo's own background
 # Pixels this close to the background are fully transparent; this far away fully opaque.
 TRANSPARENT_BELOW, OPAQUE_ABOVE = 30.0, 120.0
-# The adaptive icon is 108 dp; the smallest mask is a 72 dp circle. Keep the logo inside 66 dp (the safe zone).
-ICON_DP, SAFE_RADIUS_DP = 108, 33
+# The adaptive icon is 108 dp; the smallest mask is a 72 dp circle and the safe zone is 66 dp. The logo
+# stays well inside it (52 dp across), because some launchers (Samsung One UI) shrink and crop icons further.
+ICON_DP, SAFE_RADIUS_DP = 108, 26
 DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
 
 
@@ -67,12 +69,13 @@ def main():
     logo = Image.open(LOGO)
     colored, white = cut_out(logo)
     cx, cy, radius = logo_center_and_radius(colored)
-    for name, scale in DENSITIES.items():
-        folder = os.path.join(RES, f"mipmap-{name}")
-        os.makedirs(folder, exist_ok=True)
-        size = round(ICON_DP * scale)
-        layer(colored, cx, cy, radius, size).save(os.path.join(folder, "ic_launcher_foreground.png"), optimize=True)
-        layer(white, cx, cy, radius, size).save(os.path.join(folder, "ic_launcher_monochrome.png"), optimize=True)
+    for res in RES_FOLDERS:
+        for name, scale in DENSITIES.items():
+            folder = os.path.join(res, f"mipmap-{name}")
+            os.makedirs(folder, exist_ok=True)
+            size = round(ICON_DP * scale)
+            layer(colored, cx, cy, radius, size).save(os.path.join(folder, "ic_launcher_foreground.png"), optimize=True)
+            layer(white, cx, cy, radius, size).save(os.path.join(folder, "ic_launcher_monochrome.png"), optimize=True)
     # The 512 px icon Google Play asks for when publishing.
     logo.convert("RGB").resize((512, 512), Image.LANCZOS).save("app/src/main/ic_launcher-playstore.png", optimize=True)
     print(f"Icons written (logo center {cx:.0f},{cy:.0f}, radius {radius:.0f}px)")

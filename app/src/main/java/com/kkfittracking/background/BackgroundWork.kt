@@ -13,7 +13,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.kkfittracking.FitnessApplication
+import com.kkfittracking.KKFittrackingApplication
 import com.kkfittracking.MainActivity
 import com.kkfittracking.R
 import com.kkfittracking.RequestCodes
@@ -66,7 +66,7 @@ object BackgroundWork {
 
 class AutoBackupWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val container = (applicationContext as FitnessApplication).container
+        val container = (applicationContext as KKFittrackingApplication).container
         return try {
             container.dataTransfer.autoBackup()
             Result.success()
@@ -82,7 +82,7 @@ class AutoBackupWorker(context: Context, params: WorkerParameters) : CoroutineWo
 /** "Time to train": what today holds, with a button that starts the guided workout. */
 class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val container = (applicationContext as FitnessApplication).container
+        val container = (applicationContext as KKFittrackingApplication).container
         val settings = container.settingsRepository.settings.first()
         val day = container.workoutRepository.observeDay(LocalDate.now()).first()
         // Not started or only partly done, as the day screen and the widget count it.
