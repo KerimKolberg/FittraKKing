@@ -105,18 +105,25 @@ enum class Side(val label: String, val short: String) {
 }
 
 /**
- * Normal (not drop) sets done in full: a left and a right set of a one-sided exercise make one set
- * together; a set without a side counts on its own.
+ * Normal (not drop) sets done in full. On a one-sided exercise ([perSide]) a left and a right set
+ * make one set together, and a set without a side counts on its own. On other exercises sides do
+ * not wait for each other (sets logged with a side before the exercise was changed): a left and
+ * right pair still counts once, and a side without its pair counts on its own.
  */
-fun List<SetEntry>.fullSets(): Int {
+fun List<SetEntry>.fullSets(perSide: Boolean): Int {
     val normal = filter { !it.values.isDropSet }
     val left = normal.count { it.values.side == Side.LEFT }
     val right = normal.count { it.values.side == Side.RIGHT }
-    return normal.count { it.values.side == null } + minOf(left, right)
+    val whole = normal.count { it.values.side == null }
+    return whole + if (perSide) minOf(left, right) else maxOf(left, right)
 }
 
-/** The side still to do to finish the current set (after a left set, the right), or null. */
-fun List<SetEntry>.sideDue(): Side? {
+/**
+ * The side still to do to finish the current set of a one-sided exercise (after a left set, the
+ * right), or null. Never one for an exercise that is not done one side at a time.
+ */
+fun List<SetEntry>.sideDue(perSide: Boolean): Side? {
+    if (!perSide) return null
     val normal = filter { !it.values.isDropSet }
     val left = normal.count { it.values.side == Side.LEFT }
     val right = normal.count { it.values.side == Side.RIGHT }

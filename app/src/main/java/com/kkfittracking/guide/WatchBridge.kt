@@ -183,7 +183,9 @@ class WatchBridge(
         workouts.addSet(date, command.exerciseId, values)
         val day = workouts.observeDay(date).first()
         val entry = day.firstOrNull { it.exerciseId == command.exerciseId } ?: return
-        val step = nextStep(entry.exerciseId, entry.exerciseType, entry.plan, entry.sets, supersetContextOf(day, entry.exerciseId), settings)
+        val step = nextStep(
+            entry.exerciseId, entry.exerciseType, entry.plan, entry.sets, supersetContextOf(day, entry.exerciseId), settings, entry.perSide,
+        )
         val target = guide.afterSetLogged(date)
         val seconds = when (step) {
             is NextStep.Rest -> step.seconds

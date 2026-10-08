@@ -9,6 +9,9 @@ import com.kkfittracking.model.ExerciseType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
+/** An exercise's entry on a day: which exercise, and the day. */
+data class EntryDay(val exerciseId: String, val date: LocalDate)
+
 /** One row per set (or per exercise without sets) logged on a day. */
 data class DayRow(
     val workoutExerciseId: String,
@@ -96,6 +99,36 @@ interface WorkoutDao {
 
     @Query("SELECT MAX(sortOrder) FROM workout_sets WHERE workoutExerciseId = :workoutExerciseId AND deletedAt IS NULL")
     suspend fun maxSetSortOrder(workoutExerciseId: String): Int?
+
+    @Query(
+        """
+        SELECT we.exerciseId AS exerciseId, w.date AS date FROM workout_exercises we
+        JOIN workouts w ON w.id = we.workoutId
+        WHERE we.id = :workoutExerciseId
+        """,
+    )
+    suspend fun entryDay(workoutExerciseId: String): EntryDay?
+
+    /** The last day (epoch day) an exercise has a set on. */
+    @Query(
+        """
+        SELECT MAX(w.date) FROM workout_sets s
+        JOIN workout_exercises we ON we.id = s.workoutExerciseId
+        JOIN workouts w ON w.id = we.workoutId
+        WHERE we.exerciseId = :exerciseId AND s.deletedAt IS NULL AND we.deletedAt IS NULL AND w.deletedAt IS NULL
+        """,
+    )
+    suspend fun lastLoggedDay(exerciseId: String): Long?
+
+    /** The weight of the last normal (not drop) set with a weight in an exercise's day entry. */
+    @Query(
+        """
+        SELECT weightKg FROM workout_sets
+        WHERE workoutExerciseId = :workoutExerciseId AND deletedAt IS NULL AND isDropSet = 0 AND weightKg IS NOT NULL
+        ORDER BY sortOrder DESC LIMIT 1
+        """,
+    )
+    suspend fun lastWorkingWeight(workoutExerciseId: String): Double?
 
     @Query("SELECT COUNT(*) FROM workout_sets WHERE workoutExerciseId = :workoutExerciseId AND deletedAt IS NULL")
     suspend fun countSets(workoutExerciseId: String): Int

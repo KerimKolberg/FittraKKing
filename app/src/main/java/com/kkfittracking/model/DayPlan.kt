@@ -82,7 +82,7 @@ fun dayCompletion(day: List<DayExercise>): DayCompletion = DayCompletion(
             type = exercise.exerciseType,
             plannedSets = target.sets,
             // A left and a right set make one set of a one-sided exercise.
-            doneSets = exercise.sets.fullSets(),
+            doneSets = exercise.sets.fullSets(exercise.perSide),
             plannedDrops = target.drops,
             doneDrops = drops,
             setsGuessed = target.guessed,
@@ -120,7 +120,7 @@ fun guideTarget(day: List<DayExercise>, skipped: Set<String> = emptySet(), setti
 
         // The other side of a set that is halfway done comes first, with no rest.
         members.forEach { exercise ->
-            val side = exercise.sets.sideDue() ?: return@forEach
+            val side = exercise.sets.sideDue(exercise.perSide) ?: return@forEach
             val done = completion.getValue(exercise.exerciseId)
             return GuideTarget(
                 exercise.exerciseId, exercise.exerciseName, "Set ${done.doneSets + 1} of ${done.plannedSets} · ${side.label.lowercase()}",
@@ -130,7 +130,10 @@ fun guideTarget(day: List<DayExercise>, skipped: Set<String> = emptySet(), setti
         // A drop set that is due comes first: it follows its set with no rest.
         members.forEach { exercise ->
             val target = targetOf(exercise, superset)
-            val drop = pendingDrop(target.plan, exercise.exerciseType, exercise.sets, settings.dropSetPercent, exercise.weightUnits ?: settings.unitSystem)
+            val drop = pendingDrop(
+                target.plan, exercise.exerciseType, exercise.sets, settings.dropSetPercent,
+                exercise.weightUnits ?: settings.unitSystem, exercise.perSide,
+            )
             if (drop != null) {
                 return GuideTarget(
                     exercise.exerciseId, exercise.exerciseName, "Drop ${drop.number} of ${drop.of}",
@@ -195,22 +198,23 @@ private const val MAX_PLAYED_SETS = 300
 
 /**
  * The values to suggest for the guide's next set: a due drop set's lighter weight (and its reps),
- * else today's last set of the exercise, else the plan's reps and weight over [lastSession]'s last
- * set. Empty when there is nothing to go on.
+ * else today's last set of the exercise, else [lastSession]'s last set with the plan's reps (the
+ * plan's weight only when there is no earlier weight). Empty when there is nothing to go on.
  */
 fun guideSuggestion(day: List<DayExercise>, target: GuideTarget, settings: Settings, lastSession: List<SetEntry> = emptyList()): SetValues {
     val exercise = day.firstOrNull { it.exerciseId == target.exerciseId } ?: return SetValues()
     if (target.isDrop) {
         val plan = targetOf(exercise, supersetContextOf(day, exercise.exerciseId)).plan
-        pendingDrop(plan, exercise.exerciseType, exercise.sets, settings.dropSetPercent, exercise.weightUnits ?: settings.unitSystem)?.let {
+        pendingDrop(plan, exercise.exerciseType, exercise.sets, settings.dropSetPercent, exercise.weightUnits ?: settings.unitSystem, exercise.perSide)?.let {
             return SetValues(weightKg = it.weightKg, reps = it.reps, isDropSet = true)
         }
     }
-    exercise.sets.lastOrNull { !it.values.isDropSet }?.let { return it.values.copy(note = "") }
+    exercise.sets.lastOrNull { !it.values.isDropSet }?.let { return it.values.copy(note = "", side = it.values.side.takeIf { exercise.perSide }) }
     val last = lastSession.lastOrNull { !it.values.isDropSet }?.values ?: SetValues()
     val plan = exercise.plan
     return SetValues(
-        weightKg = plan.weightKg ?: last.weightKg,
+        // The weight typed in last time; the plan's weight only until there is one.
+        weightKg = last.weightKg ?: plan.weightKg,
         reps = plan.reps ?: last.reps,
         distanceMeters = last.distanceMeters,
         durationSeconds = last.durationSeconds,

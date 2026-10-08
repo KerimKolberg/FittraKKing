@@ -17,6 +17,7 @@ import com.kkfittracking.model.ExerciseType
 import com.kkfittracking.model.Muscle
 import com.kkfittracking.model.PlannedExercise
 import com.kkfittracking.model.SetValues
+import com.kkfittracking.model.Side
 import com.kkfittracking.model.TrainingStyle
 import com.kkfittracking.model.UnitSystem
 import com.kkfittracking.model.dayWorkouts
@@ -604,5 +605,45 @@ class RepositoryTest {
         val session = dayWorkouts(listOf(logged), 80.0, UnitSystem.METRIC, clock).sessions.single()
         assertEquals(ActivityKind.STRENGTH, session.kind)
         assertEquals(5, session.minutes)
+    }
+
+    @Test
+    fun aSideIsKeptOnlyWhileTheExerciseIsOneSided() = runTest {
+        exercises.syncBuiltIns()
+        val curl = exercises.getExercise(bench)!!
+        // One-sided: the side is kept.
+        exercises.saveExercise(bench, curl.name, curl.categoryId, curl.type, curl.notes, perSide = true)
+        workouts.addSet(day, bench, SetValues(20.0, 10, side = Side.LEFT))
+        // Left and right turned off in the middle of the workout: the next set has no side, even
+        // when the screen (or the watch) still sends one.
+        exercises.saveExercise(bench, curl.name, curl.categoryId, curl.type, curl.notes, perSide = false)
+        val second = workouts.addSet(day, bench, SetValues(20.0, 10, side = Side.RIGHT))
+        workouts.updateSet(second, SetValues(22.5, 10, side = Side.LEFT))
+        val sets = workouts.observeDay(day).first().single().sets
+        assertEquals(listOf(Side.LEFT, null), sets.map { it.values.side })
+        assertEquals(22.5, sets.last().values.weightKg!!, 0.0)
+    }
+
+    @Test
+    fun thePlansWeightFollowsTheWeightTypedInLast() = runTest {
+        exercises.syncBuiltIns()
+        exercises.savePlan(bench, ExercisePlan(sets = 3, reps = 8, weightKg = 25.0))
+        workouts.addSet(day, bench, SetValues(27.5, 8))
+        assertEquals(27.5, exercises.getExercise(bench)!!.plan.weightKg!!, 0.0)
+        // A drop set does not change it, a heavier set does.
+        workouts.addSet(day, bench, SetValues(20.0, 8, isDropSet = true))
+        val heavy = workouts.addSet(day, bench, SetValues(30.0, 6))
+        assertEquals(30.0, exercises.getExercise(bench)!!.plan.weightKg!!, 0.0)
+        // A mistyped set deleted: back to the weight of the set before it.
+        workouts.deleteSet(heavy)
+        assertEquals(27.5, exercises.getExercise(bench)!!.plan.weightKg!!, 0.0)
+        // Fixing a set on an older day leaves the plan alone.
+        val older = workouts.addSet(day.minusDays(7), bench, SetValues(22.5, 8))
+        workouts.updateSet(older, SetValues(23.0, 8))
+        assertEquals(27.5, exercises.getExercise(bench)!!.plan.weightKg!!, 0.0)
+        // A plan without a weight keeps planning none.
+        exercises.savePlan(squat, ExercisePlan(sets = 3, reps = 5))
+        workouts.addSet(day, squat, SetValues(100.0, 5))
+        assertNull(exercises.getExercise(squat)!!.plan.weightKg)
     }
 }

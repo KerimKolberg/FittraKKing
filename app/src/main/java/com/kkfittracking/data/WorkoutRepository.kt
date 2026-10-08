@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import kotlin.math.abs
 import java.util.UUID
 
 class WorkoutRepository(
@@ -35,6 +36,7 @@ class WorkoutRepository(
     private val newId: () -> String = { UUID.randomUUID().toString() },
 ) {
     private val dao = database.workoutDao()
+    private val exerciseDao = database.exerciseDao()
 
     /** The exercises logged on [date], in the order they were first logged. */
     fun observeDay(date: LocalDate): Flow<List<DayExercise>> =
@@ -75,29 +77,59 @@ class WorkoutRepository(
                 comment = values.note,
                 rpe = values.rpe,
                 isDropSet = values.isDropSet,
-                side = values.side?.name.orEmpty(),
+                side = sideOf(exerciseId, values),
                 createdAt = time,
                 updatedAt = time,
             )
             dao.insertSet(set)
+            followPlanWeight(workoutExercise.id)
             set.id
         }
 
     suspend fun updateSet(setId: String, values: SetValues) {
-        val existing = dao.getSet(setId) ?: return
-        dao.updateSet(
-            existing.copy(
-                weightKg = values.weightKg,
-                reps = values.reps,
-                distanceMeters = values.distanceMeters,
-                durationSeconds = values.durationSeconds,
-                rpe = values.rpe,
-                comment = values.note,
-                isDropSet = values.isDropSet,
-                side = values.side?.name.orEmpty(),
-                updatedAt = now(),
-            ),
-        )
+        database.withTransaction {
+            val existing = dao.getSet(setId) ?: return@withTransaction
+            val exerciseId = dao.entryDay(existing.workoutExerciseId)?.exerciseId
+            dao.updateSet(
+                existing.copy(
+                    weightKg = values.weightKg,
+                    reps = values.reps,
+                    distanceMeters = values.distanceMeters,
+                    durationSeconds = values.durationSeconds,
+                    rpe = values.rpe,
+                    comment = values.note,
+                    isDropSet = values.isDropSet,
+                    side = exerciseId?.let { sideOf(it, values) }.orEmpty(),
+                    updatedAt = now(),
+                ),
+            )
+            followPlanWeight(existing.workoutExerciseId)
+        }
+    }
+
+    /**
+     * A set's side as stored: only exercises done one side at a time keep it, so turning left and
+     * right off for an exercise (on the phone or while the watch still shows the sides) takes effect
+     * with the next set.
+     */
+    private suspend fun sideOf(exerciseId: String, values: SetValues): String =
+        values.side?.takeIf { exerciseDao.getExercise(exerciseId)?.perSide == true }?.name.orEmpty()
+
+    /**
+     * The set plan's weight follows the weight typed in last: after a set on the exercise's most
+     * recent day, a plan with a weight takes the weight of that day's last normal set. Plans without a
+     * weight stay without one, and a change to an older day leaves the plan alone.
+     */
+    private suspend fun followPlanWeight(workoutExerciseId: String) {
+        val entry = dao.entryDay(workoutExerciseId) ?: return
+        val lastDay = dao.lastLoggedDay(entry.exerciseId) ?: return
+        if (entry.date.toEpochDay() < lastDay) return
+        val weight = dao.lastWorkingWeight(workoutExerciseId) ?: return
+        val stored = exerciseDao.getExercise(entry.exerciseId) ?: return
+        val plan = ExercisePlan.fromJson(stored.plan)
+        val planned = plan.weightKg ?: return
+        if (abs(planned - weight) < WEIGHT_TOLERANCE_KG) return
+        exerciseDao.updatePlan(entry.exerciseId, plan.copy(weightKg = weight).toJson(), now())
     }
 
     /** Deletes a set. When it was the exercise's last set that day, the exercise leaves the day too. */
@@ -108,6 +140,9 @@ class WorkoutRepository(
             dao.softDeleteSet(setId, time)
             if (dao.countSets(set.workoutExerciseId) == 0) {
                 dao.softDeleteWorkoutExercise(set.workoutExerciseId, time)
+            } else {
+                // A wrong weight deleted: the plan goes back to the weight of the set before it.
+                followPlanWeight(set.workoutExerciseId)
             }
         }
     }
@@ -329,3 +364,6 @@ private fun WorkoutSetEntity.toSetEntry() = SetEntry(
     ),
     loggedAtMillis = createdAt,
 )
+
+/** Weights closer than this are the same weight. */
+private const val WEIGHT_TOLERANCE_KG = 0.001

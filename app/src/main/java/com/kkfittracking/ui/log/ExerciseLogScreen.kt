@@ -364,8 +364,8 @@ private fun TrackTab(
                         SetPlanCard(
                             plan = state.plan,
                             type = type,
-                            progress = state.supersetContext?.let { supersetProgress(it, exercise.id, state.plan, state.sets) }
-                                ?: planProgress(state.plan, state.sets, state.dueDrop?.takeIf { viewModel.dropMode }),
+                            progress = state.supersetContext?.let { supersetProgress(it, exercise.id, state.plan, state.sets, exercise.perSide) }
+                                ?: planProgress(state.plan, state.sets, state.dueDrop?.takeIf { viewModel.dropMode }, exercise.perSide),
                             inSuperset = state.superset.isNotEmpty(),
                             defaultPercent = state.settings.dropSetPercent,
                             units = units,

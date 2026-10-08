@@ -137,7 +137,7 @@ private fun gymWorkouts(gym: List<DayExercise>, weightKg: Double, fallbackEndMil
             title = gymKind(block.map { it.first }).label,
             notes = exercises.joinToString("\n") { exercise ->
                 val mine = block.filter { it.first == exercise }.map { it.second }
-                val full = mine.fullSets()
+                val full = mine.fullSets(exercise.perSide)
                 val drops = mine.count { it.values.isDropSet }
                 "${exercise.exerciseName}: " + (if (full == 1) "1 set" else "$full sets") + (if (drops > 0) " + $drops drops" else "")
             },

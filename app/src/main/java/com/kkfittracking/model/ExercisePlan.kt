@@ -213,12 +213,13 @@ fun pendingDrop(
     setsToday: List<SetEntry>,
     defaultPercent: Int,
     units: UnitSystem,
+    perSide: Boolean = false,
 ): NextStep.DropSet? {
     if (!plan.dropSets || type != ExerciseType.WEIGHT_REPS) return null
     val last = setsToday.lastOrNull() ?: return null
     // Drops come once the set is done on both sides.
-    if (setsToday.sideDue() != null) return null
-    val normalSets = setsToday.fullSets()
+    if (setsToday.sideDue(perSide) != null) return null
+    val normalSets = setsToday.fullSets(perSide)
     val dropsDone = setsToday.takeLastWhile { it.values.isDropSet }.size
     if (normalSets != (plan.sets ?: 1) || dropsDone >= plan.drops) return null
     val weight = last.values.weightKg ?: return null
@@ -242,15 +243,16 @@ fun nextStep(
     setsToday: List<SetEntry>,
     superset: SupersetContext?,
     settings: Settings,
+    perSide: Boolean = false,
 ): NextStep {
     if (type.isSession) return NextStep.Done
     // One side done: the other side comes straight after, before any rest or the next exercise.
-    setsToday.sideDue()?.let { return NextStep.OtherSide(it) }
+    setsToday.sideDue(perSide)?.let { return NextStep.OtherSide(it) }
     val planned = superset?.rounds
     if (superset != null && planned != null && superset.memberIds.size >= 2 && exerciseId in superset.memberIds) {
-        return nextInPlannedRounds(exerciseId, type, plan, setsToday, superset, planned, settings)
+        return nextInPlannedRounds(exerciseId, type, plan, setsToday, superset, planned, settings, perSide)
     }
-    pendingDrop(plan, type, setsToday, settings.dropSetPercent, settings.unitSystem)?.let { return it }
+    pendingDrop(plan, type, setsToday, settings.dropSetPercent, settings.unitSystem, perSide)?.let { return it }
     val members = superset?.memberIds.orEmpty()
     val next = nextInSuperset(members, exerciseId)
     if (superset != null && next != null) {
@@ -276,11 +278,12 @@ private fun nextInPlannedRounds(
     superset: SupersetContext,
     planned: Int,
     settings: Settings,
+    perSide: Boolean,
 ): NextStep {
     val roundPlan = superset.planFor(exerciseId, plan)
-    pendingDrop(roundPlan, type, setsToday, settings.dropSetPercent, settings.unitSystem)?.let { return it }
+    pendingDrop(roundPlan, type, setsToday, settings.dropSetPercent, settings.unitSystem, perSide)?.let { return it }
     val mine = roundPlan.sets ?: planned
-    val round = (planned - mine + setsToday.fullSets()).coerceIn(1, planned)
+    val round = (planned - mine + setsToday.fullSets(perSide)).coerceIn(1, planned)
     val order = superset.memberIds
     val rest = superset.roundRestSeconds ?: settings.restTimerSeconds
     order.drop(order.indexOf(exerciseId) + 1).firstOrNull { superset.joins(it, round) }?.let {
@@ -294,10 +297,16 @@ private fun nextInPlannedRounds(
  * "Round 2 of 3 · this exercise joins the last 2 · drop set on its last round", or "Superset done ✓";
  * null when the superset has no planned rounds.
  */
-fun supersetProgress(superset: SupersetContext, exerciseId: String, plan: ExercisePlan, setsToday: List<SetEntry>): String? {
+fun supersetProgress(
+    superset: SupersetContext,
+    exerciseId: String,
+    plan: ExercisePlan,
+    setsToday: List<SetEntry>,
+    perSide: Boolean = false,
+): String? {
     val planned = superset.rounds ?: return null
     val mine = superset.roundsOf(exerciseId) ?: planned
-    val round = planned - mine + setsToday.fullSets() + 1
+    val round = planned - mine + setsToday.fullSets(perSide) + 1
     if (round > planned) return "All $planned rounds done ✓"
     return listOfNotNull(
         "Round $round of $planned",
@@ -307,9 +316,9 @@ fun supersetProgress(superset: SupersetContext, exerciseId: String, plan: Exerci
 }
 
 /** "Set 2 of 3", "Drop 1 of 2" or "3 of 3 sets done ✓"; null when no number of sets is planned. */
-fun planProgress(plan: ExercisePlan, setsToday: List<SetEntry>, drop: NextStep.DropSet?): String? {
+fun planProgress(plan: ExercisePlan, setsToday: List<SetEntry>, drop: NextStep.DropSet?, perSide: Boolean = false): String? {
     val planned = plan.sets ?: return null
     if (drop != null) return "Drop ${drop.number} of ${drop.of}, no rest"
-    val done = setsToday.fullSets()
+    val done = setsToday.fullSets(perSide)
     return if (done < planned) "Set ${done + 1} of $planned" else "$planned of $planned sets done ✓"
 }

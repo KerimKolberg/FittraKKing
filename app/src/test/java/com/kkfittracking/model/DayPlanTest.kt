@@ -170,19 +170,19 @@ class DayPlanTest {
     @Test
     fun aLeftAndARightSetMakeOneSet() {
         fun sided(vararg sides: Side) = sides.mapIndexed { i, side -> SetEntry("s$i", SetValues(20.0, 10, side = side)) }
-        assertEquals(1, sided(Side.LEFT, Side.RIGHT, Side.LEFT).fullSets())
-        assertEquals(Side.RIGHT, sided(Side.LEFT, Side.RIGHT, Side.LEFT).sideDue())
-        assertNull(sided(Side.LEFT, Side.RIGHT).sideDue())
+        assertEquals(1, sided(Side.LEFT, Side.RIGHT, Side.LEFT).fullSets(perSide = true))
+        assertEquals(Side.RIGHT, sided(Side.LEFT, Side.RIGHT, Side.LEFT).sideDue(perSide = true))
+        assertNull(sided(Side.LEFT, Side.RIGHT).sideDue(perSide = true))
 
         // In a 3-round superset, the left set of the curl is followed by its right one, not the row.
         val superset = SupersetContext(listOf("curl", "row"), transitionSeconds = 20, roundRestSeconds = 90, rounds = 3)
         assertEquals(
             NextStep.OtherSide(Side.RIGHT),
-            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT), superset, Settings()),
+            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT), superset, Settings(), perSide = true),
         )
         assertEquals(
             NextStep.Transition("row", 20),
-            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT, Side.RIGHT), superset, Settings()),
+            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT, Side.RIGHT), superset, Settings(), perSide = true),
         )
 
         // The guide stays on the exercise for the other side, and counts both sides as one set.
@@ -197,5 +197,39 @@ class DayPlanTest {
         val bothSides = listOf(day[0].copy(sets = sided(Side.LEFT, Side.RIGHT)), day[1])
         assertEquals("Set 2 of 3", guideTarget(bothSides)!!.step)
         assertEquals(1, dayCompletion(bothSides).exercises.first().doneSets)
+    }
+
+    @Test
+    fun sidesStopCountingWhenTheExerciseIsNoLongerOneSided() {
+        fun sided(vararg sides: Side) = sides.mapIndexed { i, side -> SetEntry("s$i", SetValues(20.0, 10, side = side)) }
+        // Left and right turned off after one left set: that set counts, and no right side is due.
+        assertEquals(1, sided(Side.LEFT).fullSets(perSide = false))
+        assertNull(sided(Side.LEFT).sideDue(perSide = false))
+        // A finished left and right pair still counts once.
+        assertEquals(1, sided(Side.LEFT, Side.RIGHT).fullSets(perSide = false))
+        assertEquals(
+            NextStep.Rest(90, null),
+            nextStep("curl", ExerciseType.WEIGHT_REPS, ExercisePlan(), sided(Side.LEFT), null, Settings(), perSide = false),
+        )
+        // The guide moves on instead of waiting for the right side.
+        val day = listOf(
+            exercise("curl", ExercisePlan(sets = 2)).copy(sets = sided(Side.LEFT), perSide = false),
+            exercise("row", ExercisePlan(sets = 3)),
+        )
+        val target = guideTarget(day)!!
+        assertNull(target.side)
+        assertEquals("Set 2 of 2", target.step)
+    }
+
+    @Test
+    fun theWeightTypedInLastBeatsThePlansWeight() {
+        val settings = Settings()
+        val day = listOf(exercise("bench", ExercisePlan(sets = 3, reps = 8, weightKg = 25.0)))
+        val target = guideTarget(day, settings = settings)!!
+        // Last time 27.5 kg was lifted: that, not the plan's 25 kg, with the plan's reps.
+        val last = listOf(SetEntry("x", SetValues(27.5, 10)))
+        assertEquals(SetValues(weightKg = 27.5, reps = 8), guideSuggestion(day, target, settings, last))
+        // Never lifted before: the plan's weight to start with.
+        assertEquals(SetValues(weightKg = 25.0, reps = 8), guideSuggestion(day, target, settings, emptyList()))
     }
 }

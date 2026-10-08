@@ -58,7 +58,10 @@ import com.kkfittracking.ui.appViewModelFactory
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -101,7 +104,7 @@ data class ExerciseLogUiState(
 
     /** The planned drop set that is due now, if any. */
     val dueDrop: NextStep.DropSet?
-        get() = exercise?.let { pendingDrop(activePlan, it.type, sets, settings.dropSetPercent, units) }
+        get() = exercise?.let { pendingDrop(activePlan, it.type, sets, settings.dropSetPercent, units, it.perSide) }
 }
 
 class ExerciseLogViewModel(
@@ -214,11 +217,17 @@ class ExerciseLogViewModel(
             val state = uiState.first { !it.isLoading }
             if (input == SetInput()) {
                 // One-sided exercises start on the side still to do, else on the left.
-                val side = if (state.exercise?.perSide == true) state.sets.sideDue() ?: Side.LEFT else null
-                input = startingInput(state).copy(side = side)
+                input = startingInput(state).copy(side = startingSide(state))
             }
             // Coming back after the planned sets: the drop sets are next.
             state.dueDrop?.let { enterDrop(it, state.units) }
+        }
+        // Left and right turned on or off in the exercise's settings while this screen is open: the
+        // side buttons and the side of the next set follow right away.
+        viewModelScope.launch {
+            uiState.mapNotNull { it.exercise?.perSide }.distinctUntilChanged().drop(1).collect {
+                input = input.copy(side = startingSide(uiState.value))
+            }
         }
         // A finished interval workout fills in the rounds and time, ready to save.
         viewModelScope.launch {
@@ -236,8 +245,9 @@ class ExerciseLogViewModel(
     }
 
     /**
-     * Where the fields start, like a gym notebook: today's last set, else the plan's reps and
-     * weight, else last session's values.
+     * Where the fields start, like a gym notebook: today's last set, else last session's values with
+     * the plan's reps. The weight is always the one typed in last; the plan's weight only fills in
+     * when the exercise was never logged with one.
      */
     private fun startingInput(state: ExerciseLogUiState): SetInput {
         val today = state.sets.lastOrNull { !it.values.isDropSet }
@@ -249,11 +259,15 @@ class ExerciseLogViewModel(
         if (plan.reps != null && type?.usesReps == true && type != ExerciseType.INTERVALS) {
             start = start.copy(reps = plan.reps.toString())
         }
-        if (plan.weightKg != null && type?.usesWeight == true) {
+        if (plan.weightKg != null && type?.usesWeight == true && last?.values?.weightKg == null) {
             start = start.copy(weight = formatNumber(state.units.weightFromKg(plan.weightKg)))
         }
         return start
     }
+
+    /** One-sided exercises start on the side still to do, else on the left; others have no side. */
+    private fun startingSide(state: ExerciseLogUiState): Side? =
+        if (state.exercise?.perSide == true) state.sets.sideDue(perSide = true) ?: Side.LEFT else null
 
     fun updateInput(value: SetInput) {
         input = value
@@ -292,15 +306,17 @@ class ExerciseLogViewModel(
         when (val result = input.toSetValues(exercise.type, state.units)) {
             is SetInput.Result.Invalid -> errorMessage = result.message
             is SetInput.Result.Valid -> {
+                // A side only belongs to sets of an exercise done one side at a time.
+                val typed = result.values.copy(side = result.values.side.takeIf { exercise.perSide })
                 val editingId = selectedSetId
                 selectedSetId = null
                 if (editingId != null) {
                     // Editing keeps whether the set was a drop set.
                     val wasDrop = state.sets.firstOrNull { it.id == editingId }?.values?.isDropSet == true
-                    viewModelScope.launch { workoutRepository.updateSet(editingId, result.values.copy(isDropSet = wasDrop)) }
+                    viewModelScope.launch { workoutRepository.updateSet(editingId, typed.copy(isDropSet = wasDrop)) }
                     return
                 }
-                val values = result.values.copy(isDropSet = dropMode && canUseDropSets(state))
+                val values = typed.copy(isDropSet = dropMode && canUseDropSets(state))
                 if (intervalTimer.state.value.let { it.phase == IntervalPhase.DONE && it.exerciseId == exerciseId }) {
                     intervalTimer.reset()
                 }
@@ -365,7 +381,7 @@ class ExerciseLogViewModel(
             return
         }
         val setsNow = state.sets + SetEntry("new", saved)
-        val step = nextStep(exerciseId, exercise.type, plan, setsNow, superset, settings)
+        val step = nextStep(exerciseId, exercise.type, plan, setsNow, superset, settings, exercise.perSide)
         when (step) {
             is NextStep.DropSet -> {
                 enterDrop(step, state.units)
@@ -445,7 +461,9 @@ class ExerciseLogViewModel(
             exerciseRepository.savePlan(exerciseId, plan)
             val state = uiState.value
             val type = state.exercise?.type ?: return@launch
-            pendingDrop(plan, type, state.sets, state.settings.dropSetPercent, state.units)?.let { enterDrop(it, state.units) }
+            pendingDrop(plan, type, state.sets, state.settings.dropSetPercent, state.units, state.exercise?.perSide == true)?.let {
+                enterDrop(it, state.units)
+            }
         }
     }
 
